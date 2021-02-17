@@ -1,0 +1,179 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>Algorithmic Sports Betting - Jonathan Koppelman</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="assets/css/main.css" />
+
+        <script>
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+            ga('create', 'UA-92519809-1', 'auto');
+            ga('send', 'pageview');
+
+        </script>
+
+    </head>
+    <body>
+        <!-- Wrapper -->
+            <div id="wrapper">
+
+                <!-- Header -->
+                    <header id="header">
+                        <div class="inner">
+
+                            <!-- Logo -->
+                                <a href="index.html" class="logo">
+                                    <span class="symbol"><img src="images/Chaos_star.svg" alt="" /></span><span class="title">BACK</span>
+                                </a>
+
+                        </div>
+                    </header>
+
+                <!-- Main -->
+                    <div id="main">
+                        <div class="inner">
+                            
+                            <div id="center">
+                                <img class="circular--square" src="images/algoBets.jpg" />
+                            </div>
+                            <h1>Algorithmic Sports Betting</h1>
+                            <div id="center">
+                                <h3>Inspiration</h3>
+                            </div>
+                            <p>
+                                Before reading this, I recommend running through the <a href="ufcmodel.html">UFC Fight Predictor</a> project. Otherwise, this might be confusing. After completing the first couple iterations
+                                of the UFC Fight predictor, my friends started to take notice. They saw that my model was getting a lot of its predictions correct, more importantly, catching high value on some of it's 
+                                predictions. They started using them to make more sophisticated bets on fights, and actually win money. After discussing the reality of my model pulling a profit with my friend, I decided to
+                                try and do code it out. Moreover, I decided to try and code out an algorithm that used my model's percentages for fighters' chance of winning, to expose value in the sports books. 
+                            
+                            </p>
+                            <div id="center">
+                                <h3>Key Terms</h3>
+                            </div>
+                            <p>
+                                Here I will explain some simple terms that I will be using throughout this write-up. If you are familiar with how sports betting works, you can skip to
+                                the "Philosophy" section. When I refer to sports books I am refering to platforms like 
+                                <a href="https://sportsbook.draftkings.com/featured?category=live-in-game" target="#">DraftKings</a> and <a href="https://sportsbook.fanduel.com/sports" target="#">FanDuel</a>.
+                                These platforms allow users to speculate about certain sports against the value they propose. To explain this I will provide a quick example. I refer to sports books by saying "the books" many times
+                                throughout this paper. 
+                            </p>
+                            <div id="center">
+                                <img src="images/sportsbookex.png" alt="" height"720" width"720"/>
+                                <p>Picture for the Example Use of a SportsBook</p>
+                            </div>
+                            <p>
+                                Above is how the book will portray a specific bet you can make. "MoneyLine" is essentially how much you make per 100 dollars. In this example the Pittsburgh Penguins have a MoneyLine of -130. This means that
+                                they are favorited to win by the sportsbook, thus giving less value if you chose this bet. -130 means that you have to place a bet of 130 dollars, to recieve 100 back as profit. On the otherhand, the Ottawa Sentators are
+                                the underdog on the book, thus proposing more value. +110 means that if you place 100 dollars, you recieve 110 dollars back from the book as profit. People also use the term "odds" when refereing to the MoneyLine of
+                                some event. These odds can be used to calculate the implied probability of the event. In this example, when converted to implied probability, the book gives the Penguins a 56.52% of winning and gives the Sentators a
+                                47.62% of winning. You might have noticed that this does not add up to 100%. This will be important in the next section. There are more complexities to sports betting and to ways of observing value, 
+                                but for the scope of this paper, this is all you need.
+                            </p>
+                            <div id="center">
+                                <h3>Philosophy</h3>
+                            </div>
+                            <p>
+                                Before I explain what I did, it is important to understand a few key concepts. These concepts come together to form a proof for why the solution I created works. 
+                                <br/><br/>
+                                The first concept is that the sports book will not lose money on their bets. They set up and move the lines in such a way that they can cover either side. This means that they have enough money on both sides to payout the winner, 
+                                and there is a spread built into the odds that they keep. This spread built into the odds is called the Vig. When books set lines, they are never giving equal value on both sides. This means that the implied 
+                                probabilities of both fighters winning never add up to 0 either. Books will then move the lines as people are betting in such a way that both sides can payout the other. The closer the lines are to even
+                                the better it is for the book. The Vigs set are different for each sport, and for each book as well, as too are the odds. Due to the fact that people are betting in different ways on both books and because
+                                the Vigs set are different, each book might have different odds. Putting that aside, we now realize that books move the lines based on the peoples money. This right here is huge, this means that in order to 
+                                make money betting against the books, you really only have to be better than the people betting. In fact, and this changes slightly depending on the Vig, you really only have to have an accuracy of 55% and good
+                                money management to win consistantly. The money management part is huge. If I had an accuracy of 99% and I have poor money management, I can completely bankrupt on the 1% of the time I am wrong. The accuracy above 
+                                55% is huge too; if you do not have both good money management and an accuracy above 55%, you will not win in the long run. Speaking of looking at the long run, that is another big concept. 
+                                <br/><br/>
+                                Another important concept is how "exposing value" works. This essentially works by comparing what YOU (or your model in this case) thinks the percent chance each team/fighter has vs. what the books have. For example,
+                                let's say that the book has someone at an implied probability at 60%, whereas I have them as an implied probability of 65%. In this case I can see that they are paying me out more for that bet than I believe it is
+                                worth. Taking that position would be exposing value. On the flip side, lets say they have someone at 80% and I had them at 65%. Well now that is bad value because they are paying me out less than what I think that 
+                                position deserves; they think the team/player is less of a risk than I do. On that same concept, if they had that team/fighter at 80% and I had them at 65%, there still might be value in the other play. If they had
+                                the other team/fighter at a 25% chance at winning, and I had them at a 35% chance at winning, there is huge value here! They are paying me out more than I believe I should be getting, and even though I believe there 
+                                is only a 35% chance of winning this bet, I still am exposing value. If I put the correct amount of money down that is worth this risk, and I take this position everytime I expose value, well then in the long run I 
+                                will profit (ex. bet on the 35% team/fighter b/c of value 100 times, will win bet ~35 times, payout from that is larger than total cost of position).
+                                <br/><br/>
+                                In conclusion, when betting with a long term approach, if you have good money management (betting a proportional amount of money that is worth the risk) and at an accuracy greater than 55%, you will be profitable
+                                in the long run.  
+                            </p>
+                            <div id="center">
+                                <h3>Solution Overview</h3>
+                            </div>
+                            <p>
+                                With these concepts in mind, I was able to design a system leveraging my UFC model to break a consistant profit sports betting. My UFC model has an accuracy of 73% (for more specifics view  <a href="ufcmodel.html">here</a>) so
+                                it fits the prerequisites of accuracy (>55%). I then created an algorithm that compares the sports book's implied probability to my models implied probability. Through that comparison, and using their moneyline to see the value 
+                                represented by that position, I can then calculate expected value. Then using the expected value and the risk associated I then can make a risk adjusted size bet. I also set up an entire infrastructure around this algorithm that
+                                tracks all predictions ever made, all bets ever made, week summaries, and portfolios. The portfolios not only track a user's progress, but is also where the betting algorithm gets the user's fund amount from. Fund amount represents
+                                the total amount of money a person has designated toward this algorithmic approach of sports betting. 
+                             
+                            </p>
+
+                            <div id="center">
+                                <h3>Architecture</h3>
+                            </div>
+                            <p>
+                                Below is the actual design of the infrastructure I set up. 
+                            </p>
+                            <div id="center">
+                                <img src="images/architecture.PNG" alt="" height"720" width"720"/>
+                                <p>Diagram of Architecture</p>
+                            </div>
+                            <p>
+                                Essentially the pipeline starts with the predictions for the fights in some UFC event are passed to a DB location. Then the sports betting algorithm uses an API I built to pull 
+                            </p>
+                            <div id="center">
+                                <h3>Architecture</h3>
+                            </div>
+                            
+                            <div id="center">
+                                <h3>View the Code</h3>
+                            </div>
+                            <p>I have this repository private, as I do not want anyone to steal this code. There are things I do that I can potentially sell so I cannot have this repo public. However,
+                                if you want a runthrough of this code, contact me <a href="mailto:jonathan.koppelm@gmail.com?Subject=View UFC Fight Predictor Code"><span class="label">here</span></a>.
+                            </p>
+                            <!-- <p>I came across interesting stats; the higher ranked fighter wins ~63% of the time and this goes up to ~81% for title fights</p>                                 -->
+                        
+                        
+                        
+                        </div>
+                    </div>
+                    <!-- Footer -->
+                    <footer id="footer">
+                        <div class="inner">
+                            <section>
+                                <div id="center">
+                                    <p style="margin:0">Get in touch!</p>
+                                    <a href="https://github.com/jonathankopp" target="#" class="icon style2 fa-github"><span class="label">GitHub |</span></a>
+                                    <!--<a href="tel:" class="icon style2 fa-phone"><span class="label">Phone |</span></a></li>-->
+                                    <a href="mailto:jonathan.koppelm@gmail.com?Subject=Query to Connect" class="icon style2 fa-envelope-o"><span class="label"> Email |</span></a>
+                                    <a href="https://www.linkedin.com/in/jonathan-koppelman-53009812b/" target="#" class="icon style2 fa-envelope-o"><span > LinkedIn |</span></a>
+                                    <a href="assets/general/JonathanResume.pdf" target="#" download class="icon style2 fa-envelope-o"><span > Resume</span></a>
+                                </div>
+                            </section>
+                        </div>
+                        <p></p>
+
+                        <div class="inner">
+                            <section>
+                                <ul class="copyright">
+                                    <li>&copy; Jonathan Koppelman | All rights reserved</li>
+                                </ul>
+                            </section>
+                        </div>
+                    </footer>
+
+            </div>
+
+        <!-- Scripts -->
+            <script src="assets/js/jquery.min.js"></script>
+            <script src="assets/js/skel.min.js"></script>
+            <script src="assets/js/util.js"></script>
+            <!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+            <script src="assets/js/main.js"></script>
+
+    </body>
+</html>
