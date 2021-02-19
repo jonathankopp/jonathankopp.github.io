@@ -130,7 +130,9 @@
                                 <p>Diagram of Architecture</p>
                             </div>
                             <p>
-                                Essentially the pipeline starts with the predictions for the fights in some UFC event are passed to a DB location. Then the sports betting algorithm uses an API I built to pull 
+                                Essentially the pipeline starts with the predictions for the fights in some UFC event are passed to a DB location. Then the sports betting algorithm uses an API I built to pull the predictions for the current UFC event's fights. Then, another call is made
+                                to an api that returns every sport book's odds for the fights I am predicting [I have the algorithm only listening to the book I use]. The last thing the sports betting algorithm needs is the betting fund size. This comes from my database that holds all of the 
+                                information 
                             </p>
                             <div id="center">
                                 <h3>Architecture</h3>
@@ -142,7 +144,6 @@
                             <p>I have this repository private, as I do not want anyone to steal this code. There are things I do that I can potentially sell so I cannot have this repo public. However,
                                 if you want a runthrough of this code, contact me <a href="mailto:jonathan.koppelm@gmail.com?Subject=View UFC Fight Predictor Code"><span class="label">here</span></a>.
                             </p>
-                            <!-- <p>I came across interesting stats; the higher ranked fighter wins ~63% of the time and this goes up to ~81% for title fights</p>                                 -->
                         
                         
                         
