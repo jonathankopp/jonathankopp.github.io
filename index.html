@@ -1,207 +1,882 @@
-<!DOCTYPE HTML>
-<html>
-    <head>
-        <title>Jonathan Koppelman</title>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="stylesheet" href="assets/css/main.css" />
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DraftFish Results</title>
+<style>
+:root { --bg:#0d1117; --fg:#e6edf3; --m:#8b949e; --a:#58a6ff; --g:#2ea043;
+         --r:#f85149; --y:#d29922; --bdr:#30363d; --card:#161b22; }
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:-apple-system,'Segoe UI',sans-serif; background:var(--bg);
+       color:var(--fg); line-height:1.6; }
+.wrap { max-width:680px; margin:0 auto; padding:1rem; }
+h1 { font-size:2.2rem; font-weight:800; text-align:center; margin:2rem 0 0.2rem; }
+h1 span { color:var(--a); }
+.subtitle { text-align:center; color:var(--m); margin-bottom:2rem; }
+h2 { font-size:1.3rem; margin:2.5rem 0 0.8rem; padding-bottom:0.3rem;
+     border-bottom:1px solid var(--bdr); }
+h3 { font-size:1rem; color:var(--a); margin:1.5rem 0 0.5rem; }
+p { margin:0.5rem 0; color:#c9d1d9; }
+.muted { color:var(--m); }
+a { color:var(--a); }
+em { color:var(--fg); }
+ul { margin:0.4rem 0 0.4rem 1.2rem; color:#c9d1d9; }
+li { margin:0.2rem 0; }
+blockquote { border-left:3px solid var(--a); padding:0.6rem 1rem; margin:0.8rem 0;
+             background:var(--card); border-radius:0 8px 8px 0; color:var(--m); font-style:italic; }
+.formula { background:var(--card); border:1px solid var(--bdr); padding:0.8rem;
+           border-radius:8px; text-align:center; font-family:monospace; margin:0.8rem 0; font-size:0.9em; }
+code { background:var(--card); padding:0.1rem 0.3rem; border-radius:3px; font-size:0.88em; }
 
-        <link href=' http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
+/* --- TWEETS --- */
+.tw { display:flex; gap:0.7rem; padding:0.8rem 1rem; border:1px solid var(--bdr);
+      border-radius:12px; margin:0.5rem 0; background:var(--card); }
+.tw-left { flex-shrink:0; }
+.tw-av { width:40px; height:40px; border-radius:50%; display:flex; align-items:center;
+         justify-content:center; font-weight:700; font-size:1.1rem; color:#fff; }
+.badge-analyst { background:#1d4ed8; }
+.badge-influencer { background:#dc2626; }
+.badge-beat_reporter { background:#ca8a04; }
+.badge-rumor { background:#4b5563; }
+.badge-mock_draft { background:#059669; }
+.tw-right { flex:1; min-width:0; }
+.tw-top { display:flex; align-items:center; gap:0.3rem; flex-wrap:wrap; }
+.tw-name { font-weight:700; font-size:0.9em; }
+.verified { vertical-align:-2px; }
+.tw-handle { color:var(--m); font-size:0.85em; }
+.tw-dot { color:var(--m); }
+.tw-type { font-size:0.7em; padding:0.1rem 0.4rem; border-radius:999px; }
+.tw-type.badge-analyst { color:var(--a); border:1px solid var(--a); }
+.tw-type.badge-influencer { color:var(--r); border:1px solid var(--r); }
+.tw-type.badge-beat_reporter { color:var(--y); border:1px solid var(--y); }
+.tw-type.badge-rumor { color:var(--m); border:1px solid var(--m); }
+.tw-type.badge-mock_draft { color:var(--g); border:1px solid var(--g); }
+.tw-body { font-size:0.92em; margin:0.3rem 0; line-height:1.45; color:var(--fg); }
+.tw-tags { display:flex; flex-wrap:wrap; gap:0.3rem; margin:0.3rem 0; }
+.htag { color:var(--a); font-size:0.8em; }
+.tw-actions { display:flex; gap:1.2rem; color:var(--m); font-size:0.8em; margin-top:0.4rem; }
 
+/* --- PERSONAS --- */
+.persona { background:var(--card); border:1px solid var(--bdr); border-radius:12px;
+           padding:1rem; margin:0.8rem 0; }
+.p-header { display:flex; gap:0.8rem; align-items:center; }
+.p-av { width:44px; height:44px; border-radius:50%; background:var(--a); color:#fff;
+        display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1.2rem; }
+.p-name { font-weight:700; font-size:1.05em; }
+.p-meta { color:var(--m); font-size:0.8em; }
+.p-stats { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:0.4rem;
+           background:rgba(255,255,255,0.03); border-radius:8px; padding:0.6rem; margin:0.8rem 0; }
+.p-label { font-size:0.65em; color:var(--m); text-transform:uppercase; letter-spacing:0.5px; display:block; }
+.p-val { font-size:0.82em; font-weight:600; }
+.risk-bar { background:#333; border-radius:4px; height:6px; width:80px; margin-top:4px; }
+.risk-fill { height:6px; border-radius:4px; }
+.p-section { margin:0.6rem 0; }
+.p-section-title { font-size:0.72em; color:var(--a); text-transform:uppercase; letter-spacing:0.5px;
+                   font-weight:600; margin-bottom:0.2rem; }
+.p-section p { font-size:0.88em; color:var(--m); }
+.belief { font-size:0.85em; padding:0.4rem 0.6rem; margin:0.3rem 0; background:rgba(88,166,255,0.06);
+          border-left:2px solid var(--a); border-radius:0 6px 6px 0; color:#c9d1d9; }
+.vp-row { display:flex; flex-wrap:wrap; gap:0.3rem; }
+.vp { font-size:0.8em; background:rgba(255,255,255,0.05); padding:0.2rem 0.5rem; border-radius:4px; }
 
-        <!-- Scripts -->
-        <script src="assets/js/jquery.min.js"></script>
-        <script src="assets/js/skel.min.js"></script>
-        <script src="assets/js/util.js"></script>
-        <script src="assets/js/main.js"></script>
+/* --- TABLE --- */
+.tbl { overflow-x:auto; -webkit-overflow-scrolling:touch; margin:0.5rem 0;
+      border:1px solid var(--bdr); border-radius:8px; }
+.tbl table { width:100%; min-width:600px; border-collapse:collapse; font-size:0.82em; }
+.tbl th,.tbl td { padding:0.4rem 0.5rem; border-bottom:1px solid var(--bdr); text-align:left; white-space:nowrap; }
+.tbl td:nth-child(2) { white-space:normal; }
+.tbl th { background:var(--card); font-weight:600; }
+.vbar { height:8px; border-radius:3px; min-width:2px; display:block; }
 
+/* --- PIPELINE --- */
+.pipe { display:flex; align-items:center; justify-content:center; gap:0.2rem;
+        flex-wrap:wrap; margin:1.5rem 0; }
+.pipe-s { background:var(--card); border:1px solid var(--bdr); border-radius:8px;
+          padding:0.5rem; text-align:center; flex:1; min-width:80px; }
+.pipe-s.hl { border-color:var(--a); }
+.pipe-i { font-size:1.3rem; }
+.pipe-t { font-weight:700; font-size:0.7em; }
+.pipe-d { font-size:0.6em; color:var(--m); }
+.pipe-a { color:var(--m); font-size:0.9rem; }
+@media(max-width:600px) { .pipe-a { display:none; } .pipe { gap:0.4rem; } }
 
-        <script>
-          (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-          (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-          })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+@media(max-width:600px) {
+  .wrap { padding:0.5rem; }
+  h1 { font-size:1.6rem; }
+  .tw { padding:0.6rem; }
+  .p-stats { grid-template-columns:repeat(2,1fr); }
+  table { font-size:0.72em; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
 
-          ga('create', 'UA-92519809-1', 'auto');
-          ga('send', 'pageview');
+<h1>&#128031; Draft<span>Fish</span></h1>
+<p class="subtitle">Predict auction draft prices by simulating the entire information ecosystem.</p>
 
-        </script>
+<h2>The idea</h2>
+<p>We built a simulated world. Inside it, 20 fantasy drafters and 16 sports media personalities <em>actually exist</em> — each with a full life history, career, personality, biases, information diet, and memories from past drafts. The analysts post takes. The influencers post hype. The beat reporters post practice notes. The rumor accounts post whispers. And the drafters? They scroll through it all, each one seeing different content based on who they are and what they follow.</p>
+<p>Then they sit down at a 16-person auction table and bid on players using the beliefs they formed from everything they consumed. <strong>The prices that emerge aren't assigned — they're emergent.</strong></p>
+<p>That's DraftFish.</p>
+<p>It's built on <a href="https://github.com/nikmcfly/MiroFish-Offline">MiroFish</a>, a multi-agent social simulation engine that predicts real-world events by simulating how information flows through society. MiroFish's thesis: simulate the information ecosystem accurately enough, and predictions emerge from agent behavior. You don't hard-code what people think — you simulate what they <em>see</em>, and their beliefs follow.</p>
 
-    </head>
-    <body>
-        <!-- Wrapper -->
-            <div id="wrapper">
+<h3>What DraftFish adds</h3>
+<p>MiroFish simulates Twitter and Reddit to predict events. DraftFish uses the same engine but adds three layers:</p>
+<ul>
+<li><strong>Sports media ecosystem</strong> — analysts, influencers, beat reporters, and rumor mills that produce content grounded in real player data</li>
+<li><strong>Drafter personas with life histories</strong> — not "you are a conservative drafter" but a full backstory that <em>produces</em> conservative behavior through accumulated experiences (inspired by Stanford's <a href="https://arxiv.org/abs/2304.03442">Generative Agents</a>)</li>
+<li><strong>Auction engine</strong> — beliefs from the social sim feed into a rules-based auction that runs thousands of times to produce price distributions</li>
+</ul>
 
-                <!-- Header -->
-                    <header id="header">
-                        <div class="inner">
-                                <a href="index.html" class="logo">
-                                    <span class="symbol"><img src="images/Chaos_star.svg" alt="" /></span><span class="title">JSK</span>
-                                    
-                                    <!-- <img class="circular--square" src="images/headshot.PNG" /> -->
-                                </a>
-                        </div>
-                    </header>
-                <!-- Main -->
-                    <div id="main">
-                        <div class="inner">
-                            <header>
-                                
-                                <div id="center">
-                                    <h1>Jonathan Koppelman</h1>
-                                    <h2 style="margin:0">jonathan.koppelm@gmail.com</h2>
-                                    <p style="margin:0">New York, NY</p>
-                                    <a href="https://github.com/jonathankopp" target="#" class="icon style2 fa-github"><span class="label">GitHub</span></a>
-                                    <!--<a href="tel:" class="icon style2 fa-phone"><span class="label">Phone |</span></a></li>-->
-                                    <a href="mailto:jonathan.koppelm@gmail.com?Subject=Query to Connect" class="icon style2 fa-envelope-o"><span class="label"> Email |</span></a>
-                                    <a href="https://www.linkedin.com/in/jonathan-koppelman-53009812b/" target="#" class="icon style2 fa-envelope-o"><span > LinkedIn |</span></a>
-                                    </br>
-                                </div>
-                            </header>
-                            <div id = "center" class="inner">
-                                <section>
-                                    <h2 style="margin:0">Software Engineer - KKR & Co. Inc.</h2>
-                                    <!--What fun is the world if you don't try new things. . I try to make boring things interesting.-->
-                                    <p style="margin:0">Graduated from Rensselaer Polytechnic Instititute May 2020</p>
-                                    <p style="margin:0">Dual Bachelors of Science in Computer Science and Information Technology Web Sciences</p> 
-                                    <!--<p>This website showcases some of my experiments.</p>-->
-                                </br>
-                                    <h2 style="margin:0">Skills:</h2>
-                                    <p style="margin:0">Proficient in Python, Pandas, JavaScript, Full Stack Development, TensorFlow, SKLearn, NumPy, Data Visualization</p>
-                                    <p style="margin:0">Focused on Machine Learning and Quantatitve Analytics</p>
-                                </section>
-                            </div>
-                            <br/>
-                            <h2>Projects & About Me</h2>
-                            <hr /></br>
-<!--                             <section class="tiles">
-                                <article class="tile">
-                                    <span class="image">
-                                        <img src="images/h5.PNG" alt="" />
-                                    </span>
-                                    <a href="aboutMe.html">
-                                        <h2><strong>About Me</strong></h2>
-                                        <div class="content">
-                                            <p><strong>Learn about me</strong></p>
-                                        </div>
-                                    </a>
-                                </article> -->
-                                <article class="tile">
-                                    <span class="image">
-                                        <img src="images/ufclogo2.jpg" alt="" />
-                                    </span>
-                                    <a href="ufcmodel.html">
-                                        <h2><strong>UFC Fight Predictor</strong></h2>
-                                        <div class="content">
-                                            <p><strong>Combining my love for UFC and Machine Learning</strong></p>
-                                        </div>
-                                    </a>
-                                </article>
-                                <article class="tile">
-                                    <span class="image">
-                                        <img src="images/gears.png" alt="" />
-                                    </span>
-                                    <a href="sportsBetting.html">
-                                        <h2><strong>Algorithmic Sports Betting</strong></h2>
-                                        <div class="content">
-                                            <p><strong>Utilizing my models to expose value in sports books</strong></p>
-                                        </div>
-                                    </a>
-                                </article>
-                               <article class="tile">
-                                    <span class="image">
-                                        <img src="images/covid.gif" alt="" />
-                                    </span>
-                                    <a href="filler.html">
-                                        <h2><strong>COVID-19 Research</strong></h2>
-                                        <div class="content">
-                                            <p><strong>Programmed multiple ways to visualize COVID-19 data</strong></p>
-                                        </div>
-                                    </a>
-                                </article>
-                                <article class="tile">
-                                    <span class="image">
-                                        <img src="images/lol.jpg" alt="" />
-                                    </span>
-                                    <a href="filler.html">
-                                        <h2><strong>League of Legends Models</strong></h2>
-                                        <div class="content">
-                                            <p><strong>Created a stacked model for predicting competitive esport LoL match outcomes</strong></p>
-                                        </div>
-                                    </a>
-                                </article>
-                                <article class="tile">
-                                    <span class="image">
-                                        <img src="images/workplz.png" alt="" />
-                                    </span>
-                                    <a href="filler.html">
-                                        <h2><strong>Natural Language Procesing IBM Competition</strong></h2>
-                                        <div class="content">
-                                            <p><strong>Coded a street vendor to negotiate compete with another intelligent vendor to make a sale</strong></p>
-                                        </div>
-                                    </a>
-                                </article>
-                                <article class="tile">
-                                    <span class="image">
-                                        <img src="images/spotify.webp" alt="" />
-                                    </span>
-                                    <a href="filler.html">
-                                        <h2><strong>Spotify Social Network</strong></h2>
-                                        <div class="content">
-                                            <p><strong>Built a web application that provides Spotify users with a social network for their music taste</strong></p>
-                                        </div>
-                                    </a>
-                                </article>
-                                <article class="tile">
-                                    <span class="image">
-                                        <img src="images/TaSC.png" alt="" />
-                                    </span>
-                                    <a href="filler.html">
-                                        <h2><strong>Tutor and Student Connection</strong></h2>
-                                        <div class="content">
-                                            <p><strong>The purpose of this application is to connect students to tutors and vice versa in order to help make tutoring more widespread</strong></p>
-                                        </div>
-                                    </a>
-                                </article>
-                                <article class="tile">
-                                    <span class="image">
-                                        <img src="images/LESA.PNG" alt="" />
-                                    </span>
-                                    <a href="filler.html">
-                                        <h2><strong>Undergraduate Research</strong></h2>
-                                        <div class="content">
-                                            <p><strong>Developed computer vision software libraries for an Android application that decodes modulated light (Li-Fi) into binary data (packets)</strong></p>
-                                        </div>
-                                    </a>
-                                </article>
-                            </section>
-                        </div>
-                    </div>
+<div class="formula">ETP = Points Per Game &times; Expected Games<br><br>
+<span class="muted" style="font-size:0.85em">A player scoring 25 PPG on a 6-seed (expected ~2.1 games) has lower ETP than one scoring 15 PPG on a 1-seed (expected ~4.5 games). The tournament structure matters more than raw scoring.</span></div>
 
-                <!-- Footer -->
-                    <footer id="footer">
-                        <div class="inner">
-                            <section>
-                                <div id="center">
-                                    <p style="margin:0">Get in touch!</p>
-                                    <a href="https://github.com/jonathankopp" target="#" class="icon style2 fa-github"><span class="label">GitHub |</span></a>
-                                    <!--<a href="tel:" class="icon style2 fa-phone"><span class="label">Phone |</span></a></li>-->
-                                    <a href="mailto:jonathan.koppelm@gmail.com?Subject=Query to Connect" class="icon style2 fa-envelope-o"><span class="label"> Email |</span></a>
-                                    <a href="https://www.linkedin.com/in/jonathan-koppelman-53009812b/" target="#" class="icon style2 fa-envelope-o"><span > LinkedIn |</span></a>
-                                    <a href="assets/general/JonathanResume.pdf" target="#" download class="icon style2 fa-envelope-o"><span > Resume</span></a>
-                                </div>
-                            </section>
-                        </div>
-                        <p></p>
+<h3>How it works</h3>
+<div class="pipe">
+  <div class="pipe-s"><div class="pipe-i">&#127942;</div><div class="pipe-t">Real Data</div><div class="pipe-d">108 players, odds, stats</div></div>
+  <div class="pipe-a">&rarr;</div>
+  <div class="pipe-s"><div class="pipe-i">&#128100;</div><div class="pipe-t">Personas</div><div class="pipe-d">20 drafters, 16 media</div></div>
+  <div class="pipe-a">&rarr;</div>
+  <div class="pipe-s hl"><div class="pipe-i">&#128172;</div><div class="pipe-t">Social Sim</div><div class="pipe-d">96 posts, 321 reads</div></div>
+  <div class="pipe-a">&rarr;</div>
+  <div class="pipe-s"><div class="pipe-i">&#129504;</div><div class="pipe-t">Beliefs</div><div class="pipe-d">Memories &rarr; valuations</div></div>
+  <div class="pipe-a">&rarr;</div>
+  <div class="pipe-s"><div class="pipe-i">&#128176;</div><div class="pipe-t">Auction</div><div class="pipe-d">400 simulated drafts</div></div>
+  <div class="pipe-a">&rarr;</div>
+  <div class="pipe-s"><div class="pipe-i">&#127919;</div><div class="pipe-t">Value</div><div class="pipe-d">ETP vs market price</div></div>
+</div>
 
-                        <div class="inner">
-                            <section>
-                                <ul class="copyright">
-                                    <li>&copy; Jonathan Koppelman | All rights reserved</li>
-                                </ul>
-                            </section>
-                        </div>
-                    </footer>
-            </div>
-    </body>
+<p>The social sim is the core. It's not overhead — it's the belief formation mechanism. Without it, you'd have to <em>assign</em> what each agent thinks. With it, beliefs emerge from what each agent was exposed to.</p>
+
+<h2>Reading the numbers</h2>
+<p>Every player gets four numbers:</p>
+<ul>
+<li><strong>ETP</strong> (Expected Tournament Points) — the total points we predict this player will score across all tournament games. Accounts for PPG <em>and</em> how many games their team is likely to play.</li>
+<li><strong>Mkt$</strong> — what the simulated room paid for this player (median across 400 auctions). This is what you should expect to pay in a typical room.</li>
+<li><strong>Value</strong> — ETP minus market price. Positive = the room underprices this player. You're getting free points. The higher the number, the better the deal.</li>
+<li><strong>Range</strong> (P10-P90) — what they cost in a cheap room vs an expensive room. Wide range = volatile pricing, opportunities to steal.</li>
+</ul>
+
+<h3>Using this tonight</h3>
+<ul>
+<li><strong>Before the draft:</strong> Know your targets. The Value column is your cheat sheet. Focus on players with high ETP and low Mkt$ — those are the ones casual rooms won't fight over.</li>
+<li><strong>During bidding:</strong> The Mkt$ is your anchor. If the room bids a player past their Mkt$, let them go — someone else is overpaying. If they're going below Mkt$, bid confidently.</li>
+<li><strong>After each pick:</strong> Diversify teams. If you already have a Duke player, be cautious on another Duke player — one upset eliminates both. Spread across 4+ teams.</li>
+<li><strong>Pick 6 (bench):</strong> Spend $1-4. Your 6th player only matters when a starter is eliminated. Grab a cheap player on a 1-2 seed who'll have games left to score.</li>
+<li><strong>Budget pacing:</strong> Spend 70-80% of your $100 on your first 4 picks. Don't panic-save and don't panic-spend. The sim shows most value is in picks 2-4, not pick 1.</li>
+</ul>
+
+<h2>What the simulation found</h2>
+<p>Across 400 simulated auctions with 20 behaviorally diverse personas, the market told a clear story:</p>
+
+<blockquote>Depth players on 1-seeds are systematically underpriced. Michigan's 3rd-4th scorers cost $4-5 with ETP comparable to Dybantsa at $26 — a 5x premium driven entirely by name recognition and influencer hype.</blockquote>
+
+<p>Why? Because casual agents consumed influencer content that amplified star names, while depth players were invisible to them. The analytics-oriented agents saw the KenPom data and valued depth correctly — but they're outnumbered in a typical room. The information asymmetry IS the market inefficiency.</p>
+
+<h3>Suggested roster ($100 budget)</h3>
+<p>Optimized from sim data — maximizes total ETP while diversifying across teams and keeping budget for bidding wars.</p>
+
+<div style="background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:1rem;margin:0.8rem 0">
+<div style="display:flex;justify-content:space-between;padding:0.3rem 0;border-bottom:1px solid var(--bdr)"><span><strong>Cameron Boozer</strong> <span class="muted">(Duke)</span></span><span><span class="muted">ETP 100</span> &middot; <strong>$36</strong></span></div><div style="display:flex;justify-content:space-between;padding:0.3rem 0;border-bottom:1px solid var(--bdr)"><span><strong>Morez Johnson Jr.</strong> <span class="muted">(Michigan)</span></span><span><span class="muted">ETP 58</span> &middot; <strong>$10</strong></span></div><div style="display:flex;justify-content:space-between;padding:0.3rem 0;border-bottom:1px solid var(--bdr)"><span><strong>Koa Peat</strong> <span class="muted">(Arizona)</span></span><span><span class="muted">ETP 64</span> &middot; <strong>$17</strong></span></div><div style="display:flex;justify-content:space-between;padding:0.3rem 0;border-bottom:1px solid var(--bdr)"><span><strong>Jaden Bradley</strong> <span class="muted">(Arizona)</span></span><span><span class="muted">ETP 59</span> &middot; <strong>$13</strong></span></div><div style="display:flex;justify-content:space-between;padding:0.3rem 0;border-bottom:1px solid var(--bdr)"><span><strong>Aday Mara</strong> <span class="muted">(Michigan)</span></span><span><span class="muted">ETP 51</span> &middot; <strong>$5</strong></span></div><div style="display:flex;justify-content:space-between;padding:0.3rem 0;border-bottom:1px solid var(--bdr)"><span><strong>Emanuel Sharp</strong> <span class="muted">(Houston)</span></span><span><span class="muted">ETP 52</span> &middot; <strong>$7</strong> <span style="color:var(--m);font-size:0.8em">[BENCH]</span></span></div>
+<div style="margin-top:0.5rem;font-weight:700">Total: $88 spent &middot; $12 remaining &middot; 384 projected ETP</div>
+</div>
+
+<h3>Sleepers — high ETP, low cost</h3>
+<p>These players have 40+ ETP but the simulated room barely notices them. If you can get any of these for $1-5, you're stealing points.</p>
+<div style="display:flex;flex-wrap:wrap;gap:0.4rem;margin:0.5rem 0">
+<span style="background:rgba(46,160,67,0.15);border:1px solid rgba(46,160,67,0.3);padding:0.3rem 0.6rem;border-radius:6px;font-size:0.85em"><strong>Aday Mara</strong> <span class="muted">(Michigan)</span> 51 ETP for <strong>$5</strong></span><span style="background:rgba(46,160,67,0.15);border:1px solid rgba(46,160,67,0.3);padding:0.3rem 0.6rem;border-radius:6px;font-size:0.85em"><strong>Tobe Awaka</strong> <span class="muted">(Arizona)</span> 46 ETP for <strong>$4</strong></span><span style="background:rgba(46,160,67,0.15);border:1px solid rgba(46,160,67,0.3);padding:0.3rem 0.6rem;border-radius:6px;font-size:0.85em"><strong>Rueben Chinyelu</strong> <span class="muted">(Florida)</span> 46 ETP for <strong>$4</strong></span><span style="background:rgba(46,160,67,0.15);border:1px solid rgba(46,160,67,0.3);padding:0.3rem 0.6rem;border-radius:6px;font-size:0.85em"><strong>Pryce Sandfort</strong> <span class="muted">(Nebraska)</span> 46 ETP for <strong>$4</strong></span><span style="background:rgba(46,160,67,0.15);border:1px solid rgba(46,160,67,0.3);padding:0.3rem 0.6rem;border-radius:6px;font-size:0.85em"><strong>Walter Clayton Jr.</strong> <span class="muted">(Florida)</span> 45 ETP for <strong>$4</strong></span><span style="background:rgba(46,160,67,0.15);border:1px solid rgba(46,160,67,0.3);padding:0.3rem 0.6rem;border-radius:6px;font-size:0.85em"><strong>Elliot Cadeau</strong> <span class="muted">(Michigan)</span> 45 ETP for <strong>$4</strong></span><span style="background:rgba(46,160,67,0.15);border:1px solid rgba(46,160,67,0.3);padding:0.3rem 0.6rem;border-radius:6px;font-size:0.85em"><strong>Tamin Lipsey</strong> <span class="muted">(Iowa State)</span> 43 ETP for <strong>$4</strong></span><span style="background:rgba(46,160,67,0.15);border:1px solid rgba(46,160,67,0.3);padding:0.3rem 0.6rem;border-radius:6px;font-size:0.85em"><strong>Nick Boyd</strong> <span class="muted">(Wisconsin)</span> 44 ETP for <strong>$5</strong></span>
+</div>
+
+<h3>Overpay traps — don't get caught</h3>
+<p>These players get bid up well past their ETP because they have name recognition, hype, or both. Let someone else overpay.</p>
+<div style="display:flex;flex-wrap:wrap;gap:0.4rem;margin:0.5rem 0">
+<span style="background:rgba(248,81,73,0.15);border:1px solid rgba(248,81,73,0.3);padding:0.3rem 0.6rem;border-radius:6px;font-size:0.85em"><strong>Thomas Haugh</strong> <span class="muted">(Florida)</span> $30 but only 70 ETP</span><span style="background:rgba(248,81,73,0.15);border:1px solid rgba(248,81,73,0.3);padding:0.3rem 0.6rem;border-radius:6px;font-size:0.85em"><strong>Brayden Burries</strong> <span class="muted">(Arizona)</span> $26 but only 70 ETP</span><span style="background:rgba(248,81,73,0.15);border:1px solid rgba(248,81,73,0.3);padding:0.3rem 0.6rem;border-radius:6px;font-size:0.85em"><strong>Darius Acuff Jr.</strong> <span class="muted">(Arkansas)</span> $26 but only 59 ETP</span><span style="background:rgba(248,81,73,0.15);border:1px solid rgba(248,81,73,0.3);padding:0.3rem 0.6rem;border-radius:6px;font-size:0.85em"><strong>AJ Dybantsa</strong> <span class="muted">(BYU)</span> $26 but only 52 ETP</span><span style="background:rgba(248,81,73,0.15);border:1px solid rgba(248,81,73,0.3);padding:0.3rem 0.6rem;border-radius:6px;font-size:0.85em"><strong>Isaiah Evans</strong> <span class="muted">(Duke)</span> $25 but only 66 ETP</span><span style="background:rgba(248,81,73,0.15);border:1px solid rgba(248,81,73,0.3);padding:0.3rem 0.6rem;border-radius:6px;font-size:0.85em"><strong>Graham Ike</strong> <span class="muted">(Gonzaga)</span> $22 but only 55 ETP</span>
+</div>
+
+<h3>Full rankings</h3>
+<p class="muted">Value = ETP - median simulated auction price. Positive = the market underprices this player.</p>
+<div class="tbl">
+<table>
+<tr><th>#</th><th>Player</th><th>Team</th><th>Sd</th><th>ETP</th><th>Mkt$</th><th>Value</th><th>Range</th><th></th></tr>
+<tr>
+  <td>1</td><td><b>Cameron Boozer</b></td><td class="muted">Duke</td>
+  <td>1</td><td>100.4</td><td>$36</td>
+  <td style="color:#2ea043;font-weight:700">+64.4</td>
+  <td class="muted">$32-$41</td>
+  <td><div class="vbar" style="width:96.60000000000001%;background:#2ea043"></div></td>
+</tr><tr>
+  <td>2</td><td><b>Morez Johnson Jr.</b></td><td class="muted">Michigan</td>
+  <td>1</td><td>57.6</td><td>$10</td>
+  <td style="color:#2ea043;font-weight:700">+47.6</td>
+  <td class="muted">$5-$20</td>
+  <td><div class="vbar" style="width:71.4%;background:#2ea043"></div></td>
+</tr><tr>
+  <td>3</td><td><b>Koa Peat</b></td><td class="muted">Arizona</td>
+  <td>1</td><td>63.6</td><td>$17</td>
+  <td style="color:#2ea043;font-weight:700">+46.6</td>
+  <td class="muted">$10-$25</td>
+  <td><div class="vbar" style="width:69.9%;background:#2ea043"></div></td>
+</tr><tr>
+  <td>4</td><td><b>Jaden Bradley</b></td><td class="muted">Arizona</td>
+  <td>1</td><td>59.2</td><td>$13</td>
+  <td style="color:#2ea043;font-weight:700">+46.2</td>
+  <td class="muted">$7-$22</td>
+  <td><div class="vbar" style="width:69.30000000000001%;background:#2ea043"></div></td>
+</tr><tr>
+  <td>5</td><td><b>Aday Mara</b></td><td class="muted">Michigan</td>
+  <td>1</td><td>51.0</td><td>$5</td>
+  <td style="color:#2ea043;font-weight:700">+46.0</td>
+  <td class="muted">$2-$8</td>
+  <td><div class="vbar" style="width:69.0%;background:#2ea043"></div></td>
+</tr><tr>
+  <td>6</td><td><b>Emanuel Sharp</b></td><td class="muted">Houston</td>
+  <td>2</td><td>52.3</td><td>$7</td>
+  <td style="color:#2ea043;font-weight:700">+45.3</td>
+  <td class="muted">$4-$12</td>
+  <td><div class="vbar" style="width:67.94999999999999%;background:#2ea043"></div></td>
+</tr><tr>
+  <td>7</td><td><b>Alex Condon</b></td><td class="muted">Florida</td>
+  <td>1</td><td>51.2</td><td>$6</td>
+  <td style="color:#2ea043;font-weight:700">+45.2</td>
+  <td class="muted">$3-$11</td>
+  <td><div class="vbar" style="width:67.80000000000001%;background:#2ea043"></div></td>
+</tr><tr>
+  <td>8</td><td><b>Yaxel Lendeborg</b></td><td class="muted">Michigan</td>
+  <td>1</td><td>64.2</td><td>$20</td>
+  <td style="color:#2ea043;font-weight:700">+44.2</td>
+  <td class="muted">$11-$29</td>
+  <td><div class="vbar" style="width:66.30000000000001%;background:#2ea043"></div></td>
+</tr><tr>
+  <td>9</td><td><b>Keaton Wagler</b></td><td class="muted">Illinois</td>
+  <td>3</td><td>50.8</td><td>$7</td>
+  <td style="color:#2ea043;font-weight:700">+43.8</td>
+  <td class="muted">$3-$12</td>
+  <td><div class="vbar" style="width:65.69999999999999%;background:#2ea043"></div></td>
+</tr><tr>
+  <td>10</td><td><b>Brayden Burries</b></td><td class="muted">Arizona</td>
+  <td>1</td><td>69.7</td><td>$26</td>
+  <td style="color:#2ea043;font-weight:700">+43.7</td>
+  <td class="muted">$16-$32</td>
+  <td><div class="vbar" style="width:65.55000000000001%;background:#2ea043"></div></td>
+</tr><tr>
+  <td>11</td><td><b>Milan Momcilovic</b></td><td class="muted">Iowa State</td>
+  <td>2</td><td>55.7</td><td>$13</td>
+  <td style="color:#2ea043;font-weight:700">+42.7</td>
+  <td class="muted">$7-$22</td>
+  <td><div class="vbar" style="width:64.05000000000001%;background:#2ea043"></div></td>
+</tr><tr>
+  <td>12</td><td><b>Kingston Flemings</b></td><td class="muted">Houston</td>
+  <td>2</td><td>55.7</td><td>$13</td>
+  <td style="color:#2ea043;font-weight:700">+42.7</td>
+  <td class="muted">$7-$22</td>
+  <td><div class="vbar" style="width:64.05000000000001%;background:#2ea043"></div></td>
+</tr><tr>
+  <td>13</td><td><b>Tobe Awaka</b></td><td class="muted">Arizona</td>
+  <td>1</td><td>46.0</td><td>$4</td>
+  <td style="color:#2ea043;font-weight:700">+42.0</td>
+  <td class="muted">$2-$8</td>
+  <td><div class="vbar" style="width:63.0%;background:#2ea043"></div></td>
+</tr><tr>
+  <td>14</td><td><b>Rueben Chinyelu</b></td><td class="muted">Florida</td>
+  <td>1</td><td>45.9</td><td>$4</td>
+  <td style="color:#2ea043;font-weight:700">+41.9</td>
+  <td class="muted">$2-$7</td>
+  <td><div class="vbar" style="width:62.849999999999994%;background:#2ea043"></div></td>
+</tr><tr>
+  <td>15</td><td><b>Pryce Sandfort</b></td><td class="muted">Nebraska</td>
+  <td>4</td><td>45.7</td><td>$4</td>
+  <td style="color:#2ea043;font-weight:700">+41.7</td>
+  <td class="muted">$2-$8</td>
+  <td><div class="vbar" style="width:62.550000000000004%;background:#2ea043"></div></td>
+</tr><tr>
+  <td>16</td><td><b>Walter Clayton Jr.</b></td><td class="muted">Florida</td>
+  <td>1</td><td>45.1</td><td>$4</td>
+  <td style="color:#2ea043;font-weight:700">+41.1</td>
+  <td class="muted">$2-$7</td>
+  <td><div class="vbar" style="width:61.650000000000006%;background:#2ea043"></div></td>
+</tr><tr>
+  <td>17</td><td><b>Isaiah Evans</b></td><td class="muted">Duke</td>
+  <td>1</td><td>65.9</td><td>$25</td>
+  <td style="color:#2ea043;font-weight:700">+40.9</td>
+  <td class="muted">$15-$34</td>
+  <td><div class="vbar" style="width:61.349999999999994%;background:#2ea043"></div></td>
+</tr><tr>
+  <td>18</td><td><b>Elliot Cadeau</b></td><td class="muted">Michigan</td>
+  <td>1</td><td>44.9</td><td>$4</td>
+  <td style="color:#2ea043;font-weight:700">+40.9</td>
+  <td class="muted">$2-$7</td>
+  <td><div class="vbar" style="width:61.349999999999994%;background:#2ea043"></div></td>
+</tr><tr>
+  <td>19</td><td><b>Thomas Haugh</b></td><td class="muted">Florida</td>
+  <td>1</td><td>70.0</td><td>$30</td>
+  <td style="color:#2ea043;font-weight:700">+40.0</td>
+  <td class="muted">$19-$35</td>
+  <td><div class="vbar" style="width:60.0%;background:#2ea043"></div></td>
+</tr><tr>
+  <td>20</td><td><b>Tamin Lipsey</b></td><td class="muted">Iowa State</td>
+  <td>2</td><td>43.3</td><td>$4</td>
+  <td style="color:#2ea043;font-weight:700">+39.3</td>
+  <td class="muted">$2-$7</td>
+  <td><div class="vbar" style="width:58.949999999999996%;background:#2ea043"></div></td>
+</tr><tr>
+  <td>21</td><td><b>Nick Boyd</b></td><td class="muted">Wisconsin</td>
+  <td>5</td><td>44.1</td><td>$5</td>
+  <td style="color:#2ea043;font-weight:700">+39.1</td>
+  <td class="muted">$2-$10</td>
+  <td><div class="vbar" style="width:58.650000000000006%;background:#2ea043"></div></td>
+</tr><tr>
+  <td>22</td><td><b>Jeremy Fears Jr.</b></td><td class="muted">Michigan St.</td>
+  <td>3</td><td>43.9</td><td>$6</td>
+  <td style="color:#2ea043;font-weight:700">+37.9</td>
+  <td class="muted">$3-$12</td>
+  <td><div class="vbar" style="width:56.849999999999994%;background:#2ea043"></div></td>
+</tr><tr>
+  <td>23</td><td><b>Labaron Philon</b></td><td class="muted">Alabama</td>
+  <td>4</td><td>55.7</td><td>$18</td>
+  <td style="color:#2ea043;font-weight:700">+37.7</td>
+  <td class="muted">$10-$26</td>
+  <td><div class="vbar" style="width:56.550000000000004%;background:#2ea043"></div></td>
+</tr><tr>
+  <td>24</td><td><b>Braden Smith</b></td><td class="muted">Purdue</td>
+  <td>2</td><td>44.0</td><td>$7</td>
+  <td style="color:#2ea043;font-weight:700">+37.0</td>
+  <td class="muted">$4-$15</td>
+  <td><div class="vbar" style="width:55.5%;background:#2ea043"></div></td>
+</tr><tr>
+  <td>25</td><td><b>Kon Knueppel</b></td><td class="muted">Duke</td>
+  <td>1</td><td>53.1</td><td>$18</td>
+  <td style="color:#2ea043;font-weight:700">+35.1</td>
+  <td class="muted">$8-$30</td>
+  <td><div class="vbar" style="width:52.650000000000006%;background:#2ea043"></div></td>
+</tr><tr>
+  <td>26</td><td><b>Caleb Foster</b></td><td class="muted">Duke</td>
+  <td>1</td><td>44.2</td><td>$10</td>
+  <td style="color:#2ea043;font-weight:700">+34.2</td>
+  <td class="muted">$4-$18</td>
+  <td><div class="vbar" style="width:51.300000000000004%;background:#2ea043"></div></td>
+</tr><tr>
+  <td>27</td><td><b>Graham Ike</b></td><td class="muted">Gonzaga</td>
+  <td>3</td><td>55.0</td><td>$22</td>
+  <td style="color:#2ea043;font-weight:700">+33.0</td>
+  <td class="muted">$11-$33</td>
+  <td><div class="vbar" style="width:49.5%;background:#2ea043"></div></td>
+</tr><tr>
+  <td>28</td><td><b>Darryn Peterson</b></td><td class="muted">Kansas</td>
+  <td>4</td><td>50.8</td><td>$18</td>
+  <td style="color:#2ea043;font-weight:700">+32.8</td>
+  <td class="muted">$9-$27</td>
+  <td><div class="vbar" style="width:49.199999999999996%;background:#2ea043"></div></td>
+</tr><tr>
+  <td>29</td><td><b>Darius Acuff Jr.</b></td><td class="muted">Arkansas</td>
+  <td>4</td><td>58.7</td><td>$26</td>
+  <td style="color:#2ea043;font-weight:700">+32.7</td>
+  <td class="muted">$17-$32</td>
+  <td><div class="vbar" style="width:49.050000000000004%;background:#2ea043"></div></td>
+</tr><tr>
+  <td>30</td><td><b>AJ Dybantsa</b></td><td class="muted">BYU</td>
+  <td>6</td><td>51.7</td><td>$26</td>
+  <td style="color:#2ea043;font-weight:700">+25.7</td>
+  <td class="muted">$17-$35</td>
+  <td><div class="vbar" style="width:38.55%;background:#2ea043"></div></td>
+</tr><tr>
+  <td>31</td><td><b>Zakai Zeigler</b></td><td class="muted">Tennessee</td>
+  <td>6</td><td>25.5</td><td>$9</td>
+  <td style="color:#58a6ff;font-weight:700">+16.5</td>
+  <td class="muted">$6-$13</td>
+  <td><div class="vbar" style="width:24.75%;background:#58a6ff"></div></td>
+</tr><tr>
+  <td>32</td><td><b>Donovan Dent</b></td><td class="muted">UCLA</td>
+  <td>7</td><td>26.4</td><td>$10</td>
+  <td style="color:#58a6ff;font-weight:700">+16.4</td>
+  <td class="muted">$7-$15</td>
+  <td><div class="vbar" style="width:24.599999999999998%;background:#58a6ff"></div></td>
+</tr><tr>
+  <td>33</td><td><b>Larry Johnson</b></td><td class="muted">McNeese</td>
+  <td>12</td><td>26.4</td><td>$10</td>
+  <td style="color:#58a6ff;font-weight:700">+16.4</td>
+  <td class="muted">$7-$15</td>
+  <td><div class="vbar" style="width:24.599999999999998%;background:#58a6ff"></div></td>
+</tr><tr>
+  <td>34</td><td><b>Christian Hammond</b></td><td class="muted">Santa Clara</td>
+  <td>10</td><td>25.3</td><td>$9</td>
+  <td style="color:#58a6ff;font-weight:700">+16.3</td>
+  <td class="muted">$6-$14</td>
+  <td><div class="vbar" style="width:24.450000000000003%;background:#58a6ff"></div></td>
+</tr><tr>
+  <td>35</td><td><b>Pete Suder</b></td><td class="muted">Miami (OH)</td>
+  <td>11</td><td>24.2</td><td>$8</td>
+  <td style="color:#58a6ff;font-weight:700">+16.2</td>
+  <td class="muted">$5-$12</td>
+  <td><div class="vbar" style="width:24.299999999999997%;background:#58a6ff"></div></td>
+</tr><tr>
+  <td>36</td><td><b>Tyler Perkins</b></td><td class="muted">Villanova</td>
+  <td>8</td><td>23.2</td><td>$7</td>
+  <td style="color:#58a6ff;font-weight:700">+16.2</td>
+  <td class="muted">$4-$11</td>
+  <td><div class="vbar" style="width:24.299999999999997%;background:#58a6ff"></div></td>
+</tr><tr>
+  <td>37</td><td><b>Cruz Davis</b></td><td class="muted">Hofstra</td>
+  <td>13</td><td>25.1</td><td>$9</td>
+  <td style="color:#58a6ff;font-weight:700">+16.1</td>
+  <td class="muted">$6-$13</td>
+  <td><div class="vbar" style="width:24.150000000000002%;background:#58a6ff"></div></td>
+</tr><tr>
+  <td>38</td><td><b>Terry Anderson</b></td><td class="muted">High Point</td>
+  <td>12</td><td>24.1</td><td>$8</td>
+  <td style="color:#58a6ff;font-weight:700">+16.1</td>
+  <td class="muted">$5-$12</td>
+  <td><div class="vbar" style="width:24.150000000000002%;background:#58a6ff"></div></td>
+</tr><tr>
+  <td>39</td><td><b>David Punch</b></td><td class="muted">TCU</td>
+  <td>9</td><td>23.1</td><td>$7</td>
+  <td style="color:#58a6ff;font-weight:700">+16.1</td>
+  <td class="muted">$5-$11</td>
+  <td><div class="vbar" style="width:24.150000000000002%;background:#58a6ff"></div></td>
+</tr><tr>
+  <td>40</td><td><b>Izaiyah Nelson</b></td><td class="muted">South Florida</td>
+  <td>11</td><td>26.0</td><td>$10</td>
+  <td style="color:#58a6ff;font-weight:700">+16.0</td>
+  <td class="muted">$6-$15</td>
+  <td><div class="vbar" style="width:24.0%;background:#58a6ff"></div></td>
+</tr>
+</table>
+</div>
+
+<h2>The information ecosystem</h2>
+<p>Below is what actually happened inside the simulation. 16 ecosystem agents posted content across 6 rounds — analysts, influencers, beat reporters, rumor accounts. Each has a distinct voice, backstory, and bias. Drafters selectively consumed posts based on their information diet — an ESPN-only casual never sees the KenPom thread, and the analytics nerd never sees the Instagram hype reel.</p>
+
+<div class="tw">
+  <div class="tw-left"><div class="tw-av badge-analyst">T</div></div>
+  <div class="tw-right">
+    <div class="tw-top"><span class="tw-name">TheFilmRoom_Donovan</span><svg viewBox="0 0 22 22" width="16" height="16" class="verified"><path fill="#1d9bf0" d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.853-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.69-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.636.433 1.221.878 1.69.47.446 1.055.752 1.69.883.635.13 1.294.083 1.902-.143.271.586.702 1.084 1.24 1.438s1.167.551 1.813.568c.647-.017 1.277-.213 1.818-.567s.972-.854 1.245-1.44c.604.223 1.26.27 1.894.14.634-.132 1.22-.437 1.69-.883.445-.47.75-1.055.88-1.69.131-.634.084-1.292-.139-1.899.584-.272 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"/></svg><span class="tw-handle">@000</span><span class="tw-dot">&middot;</span><span class="tw-type badge-analyst">analyst</span></div>
+    <div class="tw-body">Just spent 3 hours rewatching Cameron Boozer film and I need to talk about something nobody&#x27;s mentioning. The 22.7 PPG is the headline but watch his footwork in the mid-post. Textbook drop step. He sells the pump fake like a veteran — draws contact, finishes through it. This is a kid who was coached RIGHT. Duke&#x27;s 1-seed is built on fundamentals most pros never develop. Thread coming tonight. #FilmRoom #NCAATournament</div>
+    <div class="tw-tags"><span class="htag">#Cameron Boozer</span> <span class="htag">#Duke</span></div>
+    <div class="tw-actions">
+      <span>&#128172; 14</span>
+      <span>&#128257; 2</span>
+      <span>&#10084;&#65039; 166</span>
+      <span>&#128065; 84K</span>
+    </div>
+  </div>
+</div><div class="tw">
+  <div class="tw-left"><div class="tw-av badge-analyst">K</div></div>
+  <div class="tw-right">
+    <div class="tw-top"><span class="tw-name">KenPom Kommand</span><svg viewBox="0 0 22 22" width="16" height="16" class="verified"><path fill="#1d9bf0" d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.853-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.69-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.636.433 1.221.878 1.69.47.446 1.055.752 1.69.883.635.13 1.294.083 1.902-.143.271.586.702 1.084 1.24 1.438s1.167.551 1.813.568c.647-.017 1.277-.213 1.818-.567s.972-.854 1.245-1.44c.604.223 1.26.27 1.894.14.634-.132 1.22-.437 1.69-.883.445-.47.75-1.055.88-1.69.131-.634.084-1.292-.139-1.899.584-.272 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"/></svg><span class="tw-handle">@001</span><span class="tw-dot">&middot;</span><span class="tw-type badge-analyst">analyst</span></div>
+    <div class="tw-body">Hot take grounded in data: AJ Dybantsa&#x27;s 25.3 PPG at BYU (6-seed) is impressive but schedule-adjusted efficiency tells a more complicated story. Darryn Peterson&#x27;s 19.8 for Kansas against B12 defenses night in and night out is underrated by comparison. Both are first-round locks. The question is which one sustains production against elite tournament defense. The KenPom splits don&#x27;t lie. Full newsletter breakdown dropping at 8PM. #KenPom #NBADraft</div>
+    <div class="tw-tags"><span class="htag">#AJ Dybantsa</span> <span class="htag">#BYU</span> <span class="htag">#Darryn Peterson</span> <span class="htag">#Kansas</span></div>
+    <div class="tw-actions">
+      <span>&#128172; 31</span>
+      <span>&#128257; 8</span>
+      <span>&#10084;&#65039; 195</span>
+      <span>&#128065; 47K</span>
+    </div>
+  </div>
+</div><div class="tw">
+  <div class="tw-left"><div class="tw-av badge-analyst">S</div></div>
+  <div class="tw-right">
+    <div class="tw-top"><span class="tw-name">SeedAdvantageAnalytics</span><svg viewBox="0 0 22 22" width="16" height="16" class="verified"><path fill="#1d9bf0" d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.853-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.69-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.636.433 1.221.878 1.69.47.446 1.055.752 1.69.883.635.13 1.294.083 1.902-.143.271.586.702 1.084 1.24 1.438s1.167.551 1.813.568c.647-.017 1.277-.213 1.818-.567s.972-.854 1.245-1.44c.604.223 1.26.27 1.894.14.634-.132 1.22-.437 1.69-.883.445-.47.75-1.055.88-1.69.131-.634.084-1.292-.139-1.899.584-.272 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"/></svg><span class="tw-handle">@002</span><span class="tw-dot">&middot;</span><span class="tw-type badge-analyst">analyst</span></div>
+    <div class="tw-body">Predictive model output for this NCAA field: Four 1-seeds (Duke, Florida, Arizona, Michigan) hold 9 of the projected top-15 picks. That concentration is historically anomalous. Cameron Boozer, Thomas Haugh, and Yaxel Lendeborg all projecting top-5. My selection committee experience says this bracket is top-heavy in a way that creates 5-12 chaos. 1-seeds advancing to Final Four: 67% in current model. Posting full probability tables now. #BracketBreakdown #Analytics</div>
+    <div class="tw-tags"><span class="htag">#Cameron Boozer</span> <span class="htag">#Duke</span> <span class="htag">#Thomas Haugh</span> <span class="htag">#Florida</span></div>
+    <div class="tw-actions">
+      <span>&#128172; 4</span>
+      <span>&#128257; 16</span>
+      <span>&#10084;&#65039; 265</span>
+      <span>&#128065; 187K</span>
+    </div>
+  </div>
+</div><div class="tw">
+  <div class="tw-left"><div class="tw-av badge-analyst">R</div></div>
+  <div class="tw-right">
+    <div class="tw-top"><span class="tw-name">ReadTheRoom_Sports</span><svg viewBox="0 0 22 22" width="16" height="16" class="verified"><path fill="#1d9bf0" d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.853-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.69-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.636.433 1.221.878 1.69.47.446 1.055.752 1.69.883.635.13 1.294.083 1.902-.143.271.586.702 1.084 1.24 1.438s1.167.551 1.813.568c.647-.017 1.277-.213 1.818-.567s.972-.854 1.245-1.44c.604.223 1.26.27 1.894.14.634-.132 1.22-.437 1.69-.883.445-.47.75-1.055.88-1.69.131-.634.084-1.292-.139-1.899.584-.272 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"/></svg><span class="tw-handle">@003</span><span class="tw-dot">&middot;</span><span class="tw-type badge-analyst">analyst</span></div>
+    <div class="tw-body">Everyone running their PPG numbers and I&#x27;m over here watching Jaden Bradley make guards miserable for 35 straight possessions. 13.5 points per game. That number means NOTHING. I coached defense for 15 years. I know what I&#x27;m looking at. Bradley is the reason Arizona is a 1-seed — not despite his scoring line, but because of what he does without the ball. Kids today want to count buckets. I count stops. Arizona is dangerous. #DefenseWinsChampionships</div>
+    <div class="tw-tags"><span class="htag">#Jaden Bradley</span> <span class="htag">#Arizona</span></div>
+    <div class="tw-actions">
+      <span>&#128172; 25</span>
+      <span>&#128257; 9</span>
+      <span>&#10084;&#65039; 38</span>
+      <span>&#128065; 87K</span>
+    </div>
+  </div>
+</div><div class="tw">
+  <div class="tw-left"><div class="tw-av badge-analyst">T</div></div>
+  <div class="tw-right">
+    <div class="tw-top"><span class="tw-name">TheFilmRoom_Donovan</span><svg viewBox="0 0 22 22" width="16" height="16" class="verified"><path fill="#1d9bf0" d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.853-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.69-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.636.433 1.221.878 1.69.47.446 1.055.752 1.69.883.635.13 1.294.083 1.902-.143.271.586.702 1.084 1.24 1.438s1.167.551 1.813.568c.647-.017 1.277-.213 1.818-.567s.972-.854 1.245-1.44c.604.223 1.26.27 1.894.14.634-.132 1.22-.437 1.69-.883.445-.47.75-1.055.88-1.69.131-.634.084-1.292-.139-1.899.584-.272 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"/></svg><span class="tw-handle">@000</span><span class="tw-dot">&middot;</span><span class="tw-type badge-analyst">analyst</span></div>
+    <div class="tw-body">Spent the morning re-watching Arizona&#x27;s offensive sets from their last three games. Jaden Bradley&#x27;s court vision is genuinely special — he&#x27;s reading second and third options before the ball is even inbounded. But what jumps off the screen is how Koa Peat plays off his gravity. When Bradley collapses the defense, Peat&#x27;s footwork in the dunker spot is as clean as any big I&#x27;ve seen at this level. The Wildcats are a dangerous 1-seed because they move the ball with purpose, not just talent. Round 2 opponents need to account for all three of Burries (15.9 PPG), Peat (14.5), and Bradley (13.5) — you can&#x27;t scheme for one without opening a window for the other two.</div>
+    <div class="tw-tags"><span class="htag">#Jaden Bradley</span> <span class="htag">#Koa Peat</span> <span class="htag">#Brayden Burries</span> <span class="htag">#Arizona</span></div>
+    <div class="tw-actions">
+      <span>&#128172; 18</span>
+      <span>&#128257; 2</span>
+      <span>&#10084;&#65039; 59</span>
+      <span>&#128065; 84K</span>
+    </div>
+  </div>
+</div><div class="tw">
+  <div class="tw-left"><div class="tw-av badge-analyst">K</div></div>
+  <div class="tw-right">
+    <div class="tw-top"><span class="tw-name">KenPom Kommand</span><svg viewBox="0 0 22 22" width="16" height="16" class="verified"><path fill="#1d9bf0" d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.853-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.69-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.636.433 1.221.878 1.69.47.446 1.055.752 1.69.883.635.13 1.294.083 1.902-.143.271.586.702 1.084 1.24 1.438s1.167.551 1.813.568c.647-.017 1.277-.213 1.818-.567s.972-.854 1.245-1.44c.604.223 1.26.27 1.894.14.634-.132 1.22-.437 1.69-.883.445-.47.75-1.055.88-1.69.131-.634.084-1.292-.139-1.899.584-.272 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"/></svg><span class="tw-handle">@001</span><span class="tw-dot">&middot;</span><span class="tw-type badge-analyst">analyst</span></div>
+    <div class="tw-body">Running the numbers ahead of Round 2: Cameron Boozer at 22.7 PPG for a 1-seed Duke squad is a strong statistical profile, but context matters — AJ Dybantsa at 25.3 for a 6-seed BYU tells a very different efficiency story. Leading scorer on a 6-seed hitting those numbers means he&#x27;s doing it with weaker surrounding talent and against a compressed schedule. The adjusted efficiency gap vs. tournament-caliber competition is the real question. Meanwhile Michigan&#x27;s load distribution — Lendeborg (14.6), Johnson (13.1), Mara (11.6) — gives the Wolverines the lowest scoring variance of any 1-seed in the bracket. That&#x27;s a KenPom-friendly profile.</div>
+    <div class="tw-tags"><span class="htag">#Cameron Boozer</span> <span class="htag">#AJ Dybantsa</span> <span class="htag">#Yaxel Lendeborg</span> <span class="htag">#Duke</span></div>
+    <div class="tw-actions">
+      <span>&#128172; 30</span>
+      <span>&#128257; 16</span>
+      <span>&#10084;&#65039; 8</span>
+      <span>&#128065; 47K</span>
+    </div>
+  </div>
+</div><div class="tw">
+  <div class="tw-left"><div class="tw-av badge-analyst">S</div></div>
+  <div class="tw-right">
+    <div class="tw-top"><span class="tw-name">SeedAdvantageAnalytics</span><svg viewBox="0 0 22 22" width="16" height="16" class="verified"><path fill="#1d9bf0" d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.853-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.69-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.636.433 1.221.878 1.69.47.446 1.055.752 1.69.883.635.13 1.294.083 1.902-.143.271.586.702 1.084 1.24 1.438s1.167.551 1.813.568c.647-.017 1.277-.213 1.818-.567s.972-.854 1.245-1.44c.604.223 1.26.27 1.894.14.634-.132 1.22-.437 1.69-.883.445-.47.75-1.055.88-1.69.131-.634.084-1.292-.139-1.899.584-.272 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"/></svg><span class="tw-handle">@002</span><span class="tw-dot">&middot;</span><span class="tw-type badge-analyst">analyst</span></div>
+    <div class="tw-body">Historical seed performance models flag two patterns for Round 2: 1-seeds with a 20+ PPG primary scorer survive at a 73% clip — Boozer (22.7, Duke) fits cleanly. But the model also consistently over-indexes 4-seeds with elite guard production. Darius Acuff Jr. (22.9 PPG, Arkansas) and Labaron Philon (21.7 PPG, Alabama) both match a historically dangerous archetype. Arkansas projects at 36% upset probability against a 1-seed matchup. The outlier play: Graham Ike (19.7 PPG) at 3-seed Gonzaga has the second-best efficiency-adjusted scoring profile in the entire field. My model likes him more than his seed suggests.</div>
+    <div class="tw-tags"><span class="htag">#Cameron Boozer</span> <span class="htag">#Darius Acuff Jr.</span> <span class="htag">#Labaron Philon</span> <span class="htag">#Graham Ike</span></div>
+    <div class="tw-actions">
+      <span>&#128172; 19</span>
+      <span>&#128257; 17</span>
+      <span>&#10084;&#65039; 23</span>
+      <span>&#128065; 187K</span>
+    </div>
+  </div>
+</div><div class="tw">
+  <div class="tw-left"><div class="tw-av badge-analyst">R</div></div>
+  <div class="tw-right">
+    <div class="tw-top"><span class="tw-name">ReadTheRoom_Sports</span><svg viewBox="0 0 22 22" width="16" height="16" class="verified"><path fill="#1d9bf0" d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.853-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.69-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.636.433 1.221.878 1.69.47.446 1.055.752 1.69.883.635.13 1.294.083 1.902-.143.271.586.702 1.084 1.24 1.438s1.167.551 1.813.568c.647-.017 1.277-.213 1.818-.567s.972-.854 1.245-1.44c.604.223 1.26.27 1.894.14.634-.132 1.22-.437 1.69-.883.445-.47.75-1.055.88-1.69.131-.634.084-1.292-.139-1.899.584-.272 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"/></svg><span class="tw-handle">@003</span><span class="tw-dot">&middot;</span><span class="tw-type badge-analyst">analyst</span></div>
+    <div class="tw-body">I&#x27;m not buying the Duke hype on Boozer&#x27;s 22.7 alone. What I want to see is how Isaiah Evans holds his assignment on the weak side when the ball reverses — that&#x27;s where the defensive breakdowns will show up. Kon Knueppel (12.0 PPG) is a shooter, but can he fight through a hard screen three possessions in a row? Duke is gonna face physicality in Round 2 and I need to see their wings hold ground. Flip side — Florida&#x27;s Thomas Haugh (17.1) plays hard every single possession. That relentless effort doesn&#x27;t always pop in the stat line but any coach watching that film sees it immediately. That&#x27;s a winning player.</div>
+    <div class="tw-tags"><span class="htag">#Cameron Boozer</span> <span class="htag">#Isaiah Evans</span> <span class="htag">#Kon Knueppel</span> <span class="htag">#Thomas Haugh</span></div>
+    <div class="tw-actions">
+      <span>&#128172; 33</span>
+      <span>&#128257; 6</span>
+      <span>&#10084;&#65039; 190</span>
+      <span>&#128065; 87K</span>
+    </div>
+  </div>
+</div><div class="tw">
+  <div class="tw-left"><div class="tw-av badge-analyst">T</div></div>
+  <div class="tw-right">
+    <div class="tw-top"><span class="tw-name">TheFilmRoom_Donovan</span><svg viewBox="0 0 22 22" width="16" height="16" class="verified"><path fill="#1d9bf0" d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.853-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.69-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.636.433 1.221.878 1.69.47.446 1.055.752 1.69.883.635.13 1.294.083 1.902-.143.271.586.702 1.084 1.24 1.438s1.167.551 1.813.568c.647-.017 1.277-.213 1.818-.567s.972-.854 1.245-1.44c.604.223 1.26.27 1.894.14.634-.132 1.22-.437 1.69-.883.445-.47.75-1.055.88-1.69.131-.634.084-1.292-.139-1.899.584-.272 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"/></svg><span class="tw-handle">@000</span><span class="tw-dot">&middot;</span><span class="tw-type badge-analyst">analyst</span></div>
+    <div class="tw-body">Watched 6 hours of Cameron Boozer tape last night and I keep coming back to the same thing — his footwork in the post is unlike anything I&#x27;ve seen from a freshman in years. As a former receiver coach, I know what it looks like when someone has been drilled on their footwork since age 8. Boozer has that. The drop step, the pivot, the finish through contact — all there at 22.7 PPG. Duke&#x27;s 1-seed isn&#x27;t about the bracket. It&#x27;s about him. Film don&#x27;t lie. #MarchMadness #TheFilmRoom</div>
+    <div class="tw-tags"><span class="htag">#Cameron Boozer</span> <span class="htag">#Duke</span></div>
+    <div class="tw-actions">
+      <span>&#128172; 7</span>
+      <span>&#128257; 9</span>
+      <span>&#10084;&#65039; 298</span>
+      <span>&#128065; 84K</span>
+    </div>
+  </div>
+</div><div class="tw">
+  <div class="tw-left"><div class="tw-av badge-analyst">K</div></div>
+  <div class="tw-right">
+    <div class="tw-top"><span class="tw-name">KenPom Kommand</span><svg viewBox="0 0 22 22" width="16" height="16" class="verified"><path fill="#1d9bf0" d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.853-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.69-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.636.433 1.221.878 1.69.47.446 1.055.752 1.69.883.635.13 1.294.083 1.902-.143.271.586.702 1.084 1.24 1.438s1.167.551 1.813.568c.647-.017 1.277-.213 1.818-.567s.972-.854 1.245-1.44c.604.223 1.26.27 1.894.14.634-.132 1.22-.437 1.69-.883.445-.47.75-1.055.88-1.69.131-.634.084-1.292-.139-1.899.584-.272 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"/></svg><span class="tw-handle">@001</span><span class="tw-dot">&middot;</span><span class="tw-type badge-analyst">analyst</span></div>
+    <div class="tw-body">Running the numbers on Round 3 matchups. AJ Dybantsa (25.3 PPG) as a 6-seed is the single most dangerous offensive player in the bracket by usage-adjusted efficiency. BYU&#x27;s schedule-adjusted numbers put them inside the top 20 despite the seed. Meanwhile Duke&#x27;s supporting cast — Evans at 14.9, Knueppel at 12.0 — creates enough spacing to make Boozer&#x27;s 22.7 PPG repeatable in tournament conditions. The data says don&#x27;t sleep on a BYU-Duke collision. Full model drops Thursday. #KenPom #CollegeBasketball</div>
+    <div class="tw-tags"><span class="htag">#AJ Dybantsa</span> <span class="htag">#BYU</span> <span class="htag">#Cameron Boozer</span> <span class="htag">#Duke</span></div>
+    <div class="tw-actions">
+      <span>&#128172; 30</span>
+      <span>&#128257; 3</span>
+      <span>&#10084;&#65039; 144</span>
+      <span>&#128065; 47K</span>
+    </div>
+  </div>
+</div><div class="tw">
+  <div class="tw-left"><div class="tw-av badge-analyst">S</div></div>
+  <div class="tw-right">
+    <div class="tw-top"><span class="tw-name">SeedAdvantageAnalytics</span><svg viewBox="0 0 22 22" width="16" height="16" class="verified"><path fill="#1d9bf0" d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.853-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.69-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.636.433 1.221.878 1.69.47.446 1.055.752 1.69.883.635.13 1.294.083 1.902-.143.271.586.702 1.084 1.24 1.438s1.167.551 1.813.568c.647-.017 1.277-.213 1.818-.567s.972-.854 1.245-1.44c.604.223 1.26.27 1.894.14.634-.132 1.22-.437 1.69-.883.445-.47.75-1.055.88-1.69.131-.634.084-1.292-.139-1.899.584-.272 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"/></svg><span class="tw-handle">@002</span><span class="tw-dot">&middot;</span><span class="tw-type badge-analyst">analyst</span></div>
+    <div class="tw-body">Historical check: 6-seeds beat 3-seeds in the Sweet 16 roughly 38% of the time when they carry a top-5 scorer in the field. AJ Dybantsa at 25.3 PPG qualifies. My models also flag Darius Acuff Jr. (22.9 PPG, 4-seed Arkansas) as structurally undervalued — his points-per-possession in high-leverage moments ranks 2nd among all tournament guards. The 1-seeds are formidable but this bracket has multiple seeding-based vulnerabilities. #BracketScience #SeedAdvantage</div>
+    <div class="tw-tags"><span class="htag">#AJ Dybantsa</span> <span class="htag">#BYU</span> <span class="htag">#Darius Acuff Jr.</span> <span class="htag">#Arkansas</span></div>
+    <div class="tw-actions">
+      <span>&#128172; 5</span>
+      <span>&#128257; 15</span>
+      <span>&#10084;&#65039; 145</span>
+      <span>&#128065; 187K</span>
+    </div>
+  </div>
+</div><div class="tw">
+  <div class="tw-left"><div class="tw-av badge-analyst">R</div></div>
+  <div class="tw-right">
+    <div class="tw-top"><span class="tw-name">ReadTheRoom_Sports</span><svg viewBox="0 0 22 22" width="16" height="16" class="verified"><path fill="#1d9bf0" d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.853-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.69-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.636.433 1.221.878 1.69.47.446 1.055.752 1.69.883.635.13 1.294.083 1.902-.143.271.586.702 1.084 1.24 1.438s1.167.551 1.813.568c.647-.017 1.277-.213 1.818-.567s.972-.854 1.245-1.44c.604.223 1.26.27 1.894.14.634-.132 1.22-.437 1.69-.883.445-.47.75-1.055.88-1.69.131-.634.084-1.292-.139-1.899.584-.272 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"/></svg><span class="tw-handle">@003</span><span class="tw-dot">&middot;</span><span class="tw-type badge-analyst">analyst</span></div>
+    <div class="tw-body">Stop me if you&#x27;ve heard this before — everyone&#x27;s watching the scorer, nobody&#x27;s watching what happens BEFORE the catch. I&#x27;ve been studying how defenses set against Boozer and the tell is always in the weak-side help rotation. When it comes late, he scores. When it comes early, he kicks. Isaiah Evans at 14.9 PPG is the beneficiary of that late rotation more than anyone on that roster. From a defensive coordinator&#x27;s lens — you stop Duke by stopping Evans first. Boozer is secondary. Don&#x27;t @ me. #ReadTheRoom #MarchMadness</div>
+    <div class="tw-tags"><span class="htag">#Cameron Boozer</span> <span class="htag">#Duke</span> <span class="htag">#Isaiah Evans</span></div>
+    <div class="tw-actions">
+      <span>&#128172; 29</span>
+      <span>&#128257; 18</span>
+      <span>&#10084;&#65039; 12</span>
+      <span>&#128065; 87K</span>
+    </div>
+  </div>
+</div><div class="tw">
+  <div class="tw-left"><div class="tw-av badge-analyst">T</div></div>
+  <div class="tw-right">
+    <div class="tw-top"><span class="tw-name">TheFilmRoom_Donovan</span><svg viewBox="0 0 22 22" width="16" height="16" class="verified"><path fill="#1d9bf0" d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.853-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.69-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.636.433 1.221.878 1.69.47.446 1.055.752 1.69.883.635.13 1.294.083 1.902-.143.271.586.702 1.084 1.24 1.438s1.167.551 1.813.568c.647-.017 1.277-.213 1.818-.567s.972-.854 1.245-1.44c.604.223 1.26.27 1.894.14.634-.132 1.22-.437 1.69-.883.445-.47.75-1.055.88-1.69.131-.634.084-1.292-.139-1.899.584-.272 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"/></svg><span class="tw-handle">@000</span><span class="tw-dot">&middot;</span><span class="tw-type badge-analyst">analyst</span></div>
+    <div class="tw-body">Film room observation that nobody&#x27;s talking about: Isaiah Evans&#x27; off-ball movement is what makes Duke genuinely dangerous in March. I watched six straight possessions last night focused exclusively on his baseline cuts, and the defensive attention he commands is real. Cameron Boozer at 22.7 PPG gets all the headlines — rightfully so, that post footwork is legitimate — but it&#x27;s the way Evans (14.9 PPG) forces rotations that opens everything up. Coached receivers for 11 years. I know what it looks like when a guy understands spacing at a structural level. That Duke system is dialed in. Full breakdown dropping tomorrow morning. #FilmRoom #Duke #MarchMadness</div>
+    <div class="tw-tags"><span class="htag">#Isaiah Evans</span> <span class="htag">#Cameron Boozer</span> <span class="htag">#Duke</span></div>
+    <div class="tw-actions">
+      <span>&#128172; 19</span>
+      <span>&#128257; 8</span>
+      <span>&#10084;&#65039; 290</span>
+      <span>&#128065; 84K</span>
+    </div>
+  </div>
+</div><div class="tw">
+  <div class="tw-left"><div class="tw-av badge-analyst">K</div></div>
+  <div class="tw-right">
+    <div class="tw-top"><span class="tw-name">KenPom Kommand</span><svg viewBox="0 0 22 22" width="16" height="16" class="verified"><path fill="#1d9bf0" d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.853-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.69-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.636.433 1.221.878 1.69.47.446 1.055.752 1.69.883.635.13 1.294.083 1.902-.143.271.586.702 1.084 1.24 1.438s1.167.551 1.813.568c.647-.017 1.277-.213 1.818-.567s.972-.854 1.245-1.44c.604.223 1.26.27 1.894.14.634-.132 1.22-.437 1.69-.883.445-.47.75-1.055.88-1.69.131-.634.084-1.292-.139-1.899.584-.272 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"/></svg><span class="tw-handle">@001</span><span class="tw-dot">&middot;</span><span class="tw-type badge-analyst">analyst</span></div>
+    <div class="tw-body">Updated model inputs for Round 4. The 1-seed concentration this bracket is historically atypical — Duke, Florida, Arizona, Michigan all alive. What the raw numbers tell you: AJ Dybantsa at 25.3 PPG on a 6-seed BYU is the single highest-variance data point remaining. His scoring volume on a mid-major schedule creates legit projection uncertainty. Darius Acuff Jr. (22.9 PPG, Arkansas, 4-seed) is the other outlier — 4-seed scoring profile that belongs in the top line. Cameron Boozer (22.7 PPG) on the 1-seed is historically the safest correlation for a deep run. Numbers don&#x27;t lie. They just don&#x27;t always tell you when. #KenPom #Bracketology #TournamentAnalytics</div>
+    <div class="tw-tags"><span class="htag">#AJ Dybantsa</span> <span class="htag">#Darius Acuff Jr.</span> <span class="htag">#Cameron Boozer</span> <span class="htag">#BYU</span></div>
+    <div class="tw-actions">
+      <span>&#128172; 39</span>
+      <span>&#128257; 9</span>
+      <span>&#10084;&#65039; 272</span>
+      <span>&#128065; 47K</span>
+    </div>
+  </div>
+</div><div class="tw">
+  <div class="tw-left"><div class="tw-av badge-analyst">S</div></div>
+  <div class="tw-right">
+    <div class="tw-top"><span class="tw-name">SeedAdvantageAnalytics</span><svg viewBox="0 0 22 22" width="16" height="16" class="verified"><path fill="#1d9bf0" d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.853-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.69-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.636.433 1.221.878 1.69.47.446 1.055.752 1.69.883.635.13 1.294.083 1.902-.143.271.586.702 1.084 1.24 1.438s1.167.551 1.813.568c.647-.017 1.277-.213 1.818-.567s.972-.854 1.245-1.44c.604.223 1.26.27 1.894.14.634-.132 1.22-.437 1.69-.883.445-.47.75-1.055.88-1.69.131-.634.084-1.292-.139-1.899.584-.272 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"/></svg><span class="tw-handle">@002</span><span class="tw-dot">&middot;</span><span class="tw-type badge-analyst">analyst</span></div>
+    <div class="tw-body">Predictive model refresh for Round 4: 1-seeds historically convert at elevated rates at this stage, but this year&#x27;s field has abnormal variance at the 4-line. Darius Acuff Jr. (22.9 PPG, Arkansas) and Darryn Peterson (19.8 PPG, Kansas) are both 4-seeds posting scoring averages that belong on 1-seed rosters. My upset probability model flags both Arkansas and Kansas as statistically overperforming their seed. On the 1-seed side, Arizona&#x27;s three-pronged attack — Burries (15.9), Peat (14.5), Bradley (13.5) — is the most balanced scoring distribution among top seeds remaining. Depth profiles like that trend positively in late-round simulations. Proceed accordingly. #SeedAdvantage #Bracketology #MarchMadness</div>
+    <div class="tw-tags"><span class="htag">#Darius Acuff Jr.</span> <span class="htag">#Darryn Peterson</span> <span class="htag">#Brayden Burries</span> <span class="htag">#Koa Peat</span></div>
+    <div class="tw-actions">
+      <span>&#128172; 30</span>
+      <span>&#128257; 18</span>
+      <span>&#10084;&#65039; 279</span>
+      <span>&#128065; 187K</span>
+    </div>
+  </div>
+</div><div class="tw">
+  <div class="tw-left"><div class="tw-av badge-analyst">R</div></div>
+  <div class="tw-right">
+    <div class="tw-top"><span class="tw-name">ReadTheRoom_Sports</span><svg viewBox="0 0 22 22" width="16" height="16" class="verified"><path fill="#1d9bf0" d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.853-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.69-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.636.433 1.221.878 1.69.47.446 1.055.752 1.69.883.635.13 1.294.083 1.902-.143.271.586.702 1.084 1.24 1.438s1.167.551 1.813.568c.647-.017 1.277-.213 1.818-.567s.972-.854 1.245-1.44c.604.223 1.26.27 1.894.14.634-.132 1.22-.437 1.69-.883.445-.47.75-1.055.88-1.69.131-.634.084-1.292-.139-1.899.584-.272 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z"/></svg><span class="tw-handle">@003</span><span class="tw-dot">&middot;</span><span class="tw-type badge-analyst">analyst</span></div>
+    <div class="tw-body">Everyone&#x27;s talking about who&#x27;s going to SCORE. I&#x27;m talking about who&#x27;s going to GUARD Cameron Boozer. I spent 15 years coaching linebackers and defensive schemes — I know what an unsolvable matchup problem looks like, and Boozer at 22.7 a game is exactly that. You go big, he&#x27;s too quick. You go small, he posts. You double, Duke has Isaiah Evans and Kon Knueppel ready to shoot. And it&#x27;s the same problem from Arizona&#x27;s frontcourt — Koa Peat at 14.5 PPG is a physical mismatch that punishes you for being undersized. Defense wins tournaments. Somebody has to solve these problems or it&#x27;s a short weekend. The tape is telling. #ReadTheRoom #MarchMadness</div>
+    <div class="tw-tags"><span class="htag">#Cameron Boozer</span> <span class="htag">#Koa Peat</span> <span class="htag">#Isaiah Evans</span> <span class="htag">#Kon Knueppel</span></div>
+    <div class="tw-actions">
+      <span>&#128172; 23</span>
+      <span>&#128257; 12</span>
+      <span>&#10084;&#65039; 40</span>
+      <span>&#128065; 87K</span>
+    </div>
+  </div>
+</div>
+
+<h2>The people in the room</h2>
+<p>20 drafter personas, each with a life story that produces their draft behavior. Not "aggressive risk-taker" as a label — a specific person with specific experiences that make them aggressive in some situations and cautious in others.</p>
+<p>16 were drawn for each simulation. Their beliefs formed from what they consumed in the social sim.</p>
+
+<div class="persona">
+  <div class="p-header">
+    <div class="p-av">M</div>
+    <div>
+      <div class="p-name">Marcus Webb</div>
+      <div class="p-meta">29 &middot; High School Physical Education Teacher &middot; 2 yrs fantasy</div>
+    </div>
+  </div>
+  <div class="p-stats">
+    <div><span class="p-label">Knowledge</span><span class="p-val">moderate</span></div>
+    <div><span class="p-label">Strategy</span><span class="p-val">balanced</span></div>
+    <div><span class="p-label">Sources</span><span class="p-val">ESPN, NBA App, The Ringer NBA Podcast, Basketball Reference basic stats, Twitter/X player follows</span></div>
+    <div><span class="p-label">Risk</span><div class="risk-bar"><div class="risk-fill" style="width:22%;background:#2ea043"></div></div></div>
+    <div><span class="p-label">Posts seen</span><span class="p-val">20</span></div>
+  </div>
+  <div class="p-section">
+    <div class="p-section-title">Background</div>
+    <p>Marcus grew up in Columbus, Ohio watching NBA games every night with his father, a former semi-pro who drilled into him that you read a player by watching how he moves without the ball — not by staring at a stat line. He played point guard through a small Division III school in Ohio, studying kinesiology and learning to evaluate athleticism and effort as physical signals. A knee injury in his junior year ended any playing ambitions, but sharpened his eye for body language and conditioning. He distrusts numbers he cannot connect to something he has personally watched. His instincts feel earned, not inherited.</p>
+  </div>
+  <div class="p-section">
+    <div class="p-section-title">Philosophy</div>
+    <p><em>"I trust what I see. If a guy looks right — the way he attacks closeouts, how he moves without the ball, whether he&#x27;s playing with energy — that tells me more than any percentage. I try not to reach, but I won&#x27;t let a player I&#x27;ve watched dominate slip past me just because his numbers don&#x27;t pop."</em></p>
+  </div>
+  <div class='p-section'><div class='p-section-title'>Going into the draft</div><div class="belief">I&#x27;ve watched Cameron Boozer three times this week. The way he reads post defenders before the catch — that&#x27;s not something you see in a stat line, that&#x27;s feel. He&#x27;s the real deal. But I&#x27;ve been burned before loading up on one guy, so I&#x27;m setting a hard ceiling and I&#x27;m walking away if the room goes crazy.</div><div class="belief">Dybantsa&#x27;s 25.3 a night is genuinely absurd and I&#x27;d be lying if I said I&#x27;m not interested, but every single person at this table has heard the same hype, which means the bidding is going to get emotional fast. And he&#x27;s a 6-seed. One tough draw and that scoring disappears after two games. I&#x27;m in at the right price, not at whatever the room decides he&#x27;s worth.</div><div class="belief">Two separate whispers about Arizona players not being right — Burries moving differently and some vague maintenance day situation involving a high-usage 1-seed scorer. I got burned once ignoring stuff like this. I&#x27;m not touching Arizona at market price tonight, and I&#x27;m cautious on any 1-seed big scorer until something clarifies.</div></div>
+  <div class='p-section'><div class='p-section-title'>Top valuations</div><div class='vp-row'><span class="vp">Cameron Boozer <b>$54</b></span><span class="vp">AJ Dybantsa <b>$40</b></span><span class="vp">Thomas Haugh <b>$35</b></span><span class="vp">Graham Ike <b>$34</b></span><span class="vp">Isaiah Evans <b>$32</b></span></div></div>
+</div><div class="persona">
+  <div class="p-header">
+    <div class="p-av">D</div>
+    <div>
+      <div class="p-name">Derek Kowalski</div>
+      <div class="p-meta">39 &middot; Commercial HVAC Supervisor &middot; 11 yrs fantasy</div>
+    </div>
+  </div>
+  <div class="p-stats">
+    <div><span class="p-label">Knowledge</span><span class="p-val">espn only</span></div>
+    <div><span class="p-label">Strategy</span><span class="p-val">stars and scrubs</span></div>
+    <div><span class="p-label">Sources</span><span class="p-val">ESPN Fantasy App, ESPN SportsCenter</span></div>
+    <div><span class="p-label">Risk</span><div class="risk-bar"><div class="risk-fill" style="width:85%;background:#f85149"></div></div></div>
+    <div><span class="p-label">Posts seen</span><span class="p-val">17</span></div>
+  </div>
+  <div class="p-section">
+    <div class="p-section-title">Background</div>
+    <p>Grew up in Akron, Ohio, third of four kids in a union household where sports were the common language and ESPN was always on after dinner. Never much for school beyond what got him to his journeyman&#x27;s card. Learned to make decisions fast on job sites — no time to overthink, trust what you see, live with it. Lost a side business in his late twenties betting on a gut feeling and it stung, but it didn&#x27;t make him cautious, it made him want to swing bigger to get it back. He respects confidence over calculation.</p>
+  </div>
+  <div class="p-section">
+    <div class="p-section-title">Philosophy</div>
+    <p><em>"You want the best players. Everyone knows who the best players are. Get two of them and don&#x27;t stress the rest — someone&#x27;s always available on the wire. Overthinking it is just an excuse for not having the guts to spend."</em></p>
+  </div>
+  <div class='p-section'><div class='p-section-title'>Going into the draft</div><div class="belief">Boozer is the guy. I&#x27;ve been hearing his name every single day this week, ESPN&#x27;s got him consensus number one, 22.7 points a game on a 1-seed. You want to win this thing, you start there and you don&#x27;t apologize for the price.</div><div class="belief">Stars carry rosters. I had Giannis and KD in year eight and I coasted. The scrubs behind them figured themselves out. Two scoring machines at the top and the rest doesn&#x27;t matter as much as people think. Same logic applies here.</div><div class="belief">Dybantsa is dropping 25 a game — that&#x27;s a number you can&#x27;t talk yourself out of. Yeah he&#x27;s a 6-seed, but scorers score. If I can pair him with Boozer I&#x27;ve got a team.</div></div>
+  <div class='p-section'><div class='p-section-title'>Top valuations</div><div class='vp-row'><span class="vp">Cameron Boozer <b>$70</b></span><span class="vp">AJ Dybantsa <b>$58</b></span><span class="vp">Graham Ike <b>$42</b></span><span class="vp">Isaiah Evans <b>$40</b></span><span class="vp">Thomas Haugh <b>$38</b></span></div></div>
+</div><div class="persona">
+  <div class="p-header">
+    <div class="p-av">M</div>
+    <div>
+      <div class="p-name">Marcus Delgado Webb</div>
+      <div class="p-meta">31 &middot; Sports Analytics Consultant &middot; 0 yrs fantasy</div>
+    </div>
+  </div>
+  <div class="p-stats">
+    <div><span class="p-label">Knowledge</span><span class="p-val">hardcore analytics</span></div>
+    <div><span class="p-label">Strategy</span><span class="p-val">depth heavy</span></div>
+    <div><span class="p-label">Sources</span><span class="p-val">BBall-Index, Cleaning the Glass, Second Spectrum, Synergy Sports, The Athletic, internal franchise scouting reports, game film (self-reviewed)</span></div>
+    <div><span class="p-label">Risk</span><div class="risk-bar"><div class="risk-fill" style="width:17%;background:#2ea043"></div></div></div>
+    <div><span class="p-label">Posts seen</span><span class="p-val">23</span></div>
+  </div>
+  <div class="p-section">
+    <div class="p-section-title">Background</div>
+    <p>Grew up in Durham, NC with a father who coached high school basketball and a mother who was a biostatistics professor at Duke. Absorbed both worlds simultaneously—his dad&#x27;s eye for off-ball movement and his mom&#x27;s demand for rigor. Played D3 basketball at UNC Asheville, solid starter, never athletic enough to go higher. Watched film obsessively as a player. Got an M.S. in statistics at NC State. Now consults for a mid-market NBA franchise on player evaluation models. Professionally trained to distrust gut instincts without data support, but four years of playing the game taught him that certain things—effort, positioning, motor—only appear on tape.</p>
+  </div>
+  <div class="p-section">
+    <div class="p-section-title">Philosophy</div>
+    <p><em>"I want eight guys I believe in over one guy I&#x27;m praying for. The metrics tell me who to look at; the film tells me if I trust what I&#x27;m seeing. I&#x27;ve watched enough tape to know box scores miss half the story, and I&#x27;ve seen enough variance in my own models to know concentration risk is real."</em></p>
+  </div>
+  <div class='p-section'><div class='p-section-title'>Going into the draft</div><div class="belief">ETP is the signal, PPG is the story people tell about the signal. Dybantsa at 25.3 a night sounds electric until you remember he&#x27;s a 6-seed and my model has him at 51.7 expected tournament points — less than half of Boozer&#x27;s 100.4. The market is pricing narrative. I&#x27;m pricing games played times points per game times survival probability. Those are not the same number.</div><div class="belief">I&#x27;ve watched Cameron Boozer on tape three times this week and I grew up twenty minutes from Cameron Indoor. The way he reads post defenders before the entry pass arrives is a tell for a guy who won&#x27;t get flustered when the bracket tightens. Duke bias is real — I know it — but in this case the film is actually confirming what my model suggests. That&#x27;s the only time I let the bias run.</div><div class="belief">Concentration risk is the tournament killer. One first-round upset and I&#x27;m watching two or three roster slots go dark at the same time. I need players spread across at least four different teams. The &#x27;but they&#x27;re a 1-seed&#x27; justification is the same reasoning that got that guy in my mock draft to go $58 on one player. I taped his roster to my monitor for a reason.</div></div>
+  <div class='p-section'><div class='p-section-title'>Top valuations</div><div class='vp-row'><span class="vp">Cameron Boozer <b>$58</b></span><span class="vp">Brayden Burries <b>$42</b></span><span class="vp">Thomas Haugh <b>$40</b></span><span class="vp">Isaiah Evans <b>$37</b></span><span class="vp">Jaden Bradley <b>$36</b></span></div></div>
+</div><div class="persona">
+  <div class="p-header">
+    <div class="p-av">M</div>
+    <div>
+      <div class="p-name">Marcus Webb</div>
+      <div class="p-meta">27 &middot; Graphic Designer &middot; 2 yrs fantasy</div>
+    </div>
+  </div>
+  <div class="p-stats">
+    <div><span class="p-label">Knowledge</span><span class="p-val">moderate</span></div>
+    <div><span class="p-label">Strategy</span><span class="p-val">stars and scrubs</span></div>
+    <div><span class="p-label">Sources</span><span class="p-val">ESPN, The Ringer NBA Podcast, NBA Twitter, Yahoo Fantasy News, Bleacher Report</span></div>
+    <div><span class="p-label">Risk</span><div class="risk-bar"><div class="risk-fill" style="width:79%;background:#f85149"></div></div></div>
+    <div><span class="p-label">Posts seen</span><span class="p-val">20</span></div>
+  </div>
+  <div class="p-section">
+    <div class="p-section-title">Background</div>
+    <p>Grew up in Memphis with a dad who coached high school basketball, framing every game as a story of grit, redemption, or heartbreak. Studied graphic design at University of Memphis, training himself to see the world through narrative and visual pattern. Early in his career he invested savings in a friend&#x27;s food truck because the concept had a compelling story — it failed. The lesson should have been to check the numbers, but instead he decided he just needed to pick better stories. He&#x27;s intuitive, emotionally intelligent, and drawn to narrative coherence over analytical rigor.</p>
+  </div>
+  <div class="p-section">
+    <div class="p-section-title">Philosophy</div>
+    <p><em>"Give me the guy with a chip on his shoulder — coming back from injury, just got traded, has something to prove. I&#x27;d rather blow half my budget on one elite player who controls the ball than spread money across five forgettable guys. Stars carry leagues. Scrubs are just noise control."</em></p>
+  </div>
+  <div class='p-section'><div class='p-section-title'>Going into the draft</div><div class="belief">Boozer is the story of this tournament. I&#x27;ve watched him three times this week and there&#x27;s nothing in that film that looks like a guy who loses in March. The way he reads post defenders before the entry pass — that&#x27;s not a freshman, that&#x27;s a closer. Duke&#x27;s running a four-deep scoring rotation around him and they&#x27;re a 1-seed. I&#x27;m spending big, same energy I had on Giannis.</div><div class="belief">Stars carry leagues, scrubs are noise control. I don&#x27;t need five solid contributors — I need one guy who controls outcomes and five warm bodies who stay out of his way. Giannis got me to third place on roster scraps. Imagine if I&#x27;d had actual depth behind him instead of waiver wire rejects.</div><div class="belief">That maintenance day whisper is real and it&#x27;s haunting me. High-usage scorer, 1-seed program — that&#x27;s either Boozer or someone in that tier. I&#x27;m not backing off my read until I see something concrete, but it&#x27;s in my head and it&#x27;s going to make me hesitate at the wrong moment if I&#x27;m not careful.</div></div>
+  <div class='p-section'><div class='p-section-title'>Top valuations</div><div class='vp-row'><span class="vp">Cameron Boozer <b>$65</b></span><span class="vp">AJ Dybantsa <b>$44</b></span><span class="vp">Darius Acuff Jr. <b>$38</b></span><span class="vp">Labaron Philon <b>$30</b></span><span class="vp">Graham Ike <b>$28</b></span></div></div>
+</div><div class="persona">
+  <div class="p-header">
+    <div class="p-av">D</div>
+    <div>
+      <div class="p-name">Derek Fontaine</div>
+      <div class="p-meta">31 &middot; High school PE teacher and assistant JV basketball coach &middot; 0 yrs fantasy</div>
+    </div>
+  </div>
+  <div class="p-stats">
+    <div><span class="p-label">Knowledge</span><span class="p-val">casual</span></div>
+    <div><span class="p-label">Strategy</span><span class="p-val">balanced</span></div>
+    <div><span class="p-label">Sources</span><span class="p-val">ESPN, SportsCenter, ESPN App</span></div>
+    <div><span class="p-label">Risk</span><div class="risk-bar"><div class="risk-fill" style="width:52%;background:#58a6ff"></div></div></div>
+    <div><span class="p-label">Posts seen</span><span class="p-val">23</span></div>
+  </div>
+  <div class="p-section">
+    <div class="p-section-title">Background</div>
+    <p>Grew up in Memphis, Tennessee, middle kid in a household where both parents worked in healthcare — mom as a dental hygienist, dad as an X-ray tech. Practical people who watched sports for fun, never for analysis. Derek played rec ball through high school but was never quite varsity-caliber, so he became an enthusiastic spectator instead. Studied kinesiology at University of Memphis, graduated without a clear plan, drifted into teaching. He makes decisions by feel first, then skims conventional wisdom to make sure he isn&#x27;t obviously wrong. Never digs deep — reads the headline, glances at the box score, moves on.</p>
+  </div>
+  <div class="p-section">
+    <div class="p-section-title">Philosophy</div>
+    <p><em>"I just try to get a couple guys I know are actually good and not overthink the rest. I&#x27;ve watched people go crazy trying to win the draft and then their team falls apart anyway. Get the names you trust and fill in the gaps as you go."</em></p>
+  </div>
+  <div class='p-section'><div class='p-section-title'>Going into the draft</div><div class="belief">Boozer and Dybantsa are the two names I keep hearing everywhere — ESPN, the mock results, the tier lists, all of it. They&#x27;re clearly the top guys. But I watched Marcus go forty percent on one player and spend the rest of the draft scraping the bottom. I&#x27;m not doing that. Whatever Boozer costs in the room, I&#x27;m walking away before I hit a third of my budget.</div><div class="belief">One-seeds are safer bets. They&#x27;ve got better paths through the bracket, better teams around them, and in a tournament where one loss ends your whole investment, I&#x27;d rather have a guy who&#x27;s expected to play five or six games than some six-seed who might torch it in round one and go home.</div><div class="belief">Dybantsa&#x27;s numbers are wild — twenty-five points a game is not normal — but BYU is a six-seed. That&#x27;s a real risk. I&#x27;ve been reading the hype all week and part of me wants to go get him, but then I think about how a team with less talent around him could lose to a three-seed and I&#x27;ve got a $40 doorstop.</div></div>
+  <div class='p-section'><div class='p-section-title'>Top valuations</div><div class='vp-row'><span class="vp">Cameron Boozer <b>$55</b></span><span class="vp">AJ Dybantsa <b>$38</b></span><span class="vp">Graham Ike <b>$34</b></span><span class="vp">Thomas Haugh <b>$30</b></span><span class="vp">Brayden Burries <b>$28</b></span></div></div>
+</div><div class="persona">
+  <div class="p-header">
+    <div class="p-av">M</div>
+    <div>
+      <div class="p-name">Marcus Teller</div>
+      <div class="p-meta">33 &middot; Quantitative Analyst, mid-size hedge fund &middot; 11 yrs fantasy</div>
+    </div>
+  </div>
+  <div class="p-stats">
+    <div><span class="p-label">Knowledge</span><span class="p-val">none</span></div>
+    <div><span class="p-label">Strategy</span><span class="p-val">depth heavy</span></div>
+    <div><span class="p-label">Sources</span><span class="p-val">Hashtag Basketball projections, FantasyPros aggregated consensus, Dunks & Threes, Basketball-Reference, RotoGrinders auction values, custom Python projection blending model</span></div>
+    <div><span class="p-label">Risk</span><div class="risk-bar"><div class="risk-fill" style="width:83%;background:#f85149"></div></div></div>
+    <div><span class="p-label">Posts seen</span><span class="p-val">17</span></div>
+  </div>
+  <div class="p-section">
+    <div class="p-section-title">Background</div>
+    <p>Raised in Naperville, Illinois by an actuary father and a biostatistics professor mother. Family debates centered on Bayesian inference and expected value, never sports. Studied applied mathematics at Carnegie Mellon, then joined a Chicago quant desk at 23. A early career loss following a colleague&#x27;s gut-feel stock tip cost him three months of savings and permanently hardened his conviction: sentiment is noise, models are signal. He has since applied that framework to every decision domain in his life.</p>
+  </div>
+  <div class="p-section">
+    <div class="p-section-title">Philosophy</div>
+    <p><em>"The draft is a portfolio allocation problem under uncertainty. Maximize projected value per dollar spent, overweight high-variance depth plays when the auction market misprice them due to name aversion, and never let familiarity substitute for the numbers."</em></p>
+  </div>
+  <div class='p-section'><div class='p-section-title'>Going into the draft</div><div class="belief">The market is systematically mispricing AJ Dybantsa. His 25.3 PPG is generating $47-58 consensus clearing prices in my sims, but ETP of 51.7 reflects what a 6-seed actually produces across expected tournament games. That is a 60-90% premium over model value driven entirely by a PPG narrative that ignores seed-weighted game count. I will not bid above $22. Let everyone else light their budgets on fire.</div><div class="belief">Thomas Haugh and Brayden Burries are the clearest value asymmetries in this pool. ETP 70.0 and 69.7 respectively, both on 1-seeds, both priced low because neither has a recognizable name in this room. That is the same arbitrage I hit in year three with the unknown center. Name-recognition discount plus deep-team upside is the single most repeatable edge in auction drafts.</div><div class="belief">Duke concentration is the trap this year. Boozer is the consensus darling and will clear above my model ceiling. Evans and Knueppel offer legitimate ETP from the same 1-seed run but I will not stack Duke — one round-one exit eliminates the entire position. One player per team is a hard constraint, not a preference.</div></div>
+  <div class='p-section'><div class='p-section-title'>Top valuations</div><div class='vp-row'><span class="vp">Cameron Boozer <b>$48</b></span><span class="vp">Thomas Haugh <b>$38</b></span><span class="vp">Brayden Burries <b>$37</b></span><span class="vp">Yaxel Lendeborg <b>$33</b></span><span class="vp">Isaiah Evans <b>$28</b></span></div></div>
+</div><div class="persona">
+  <div class="p-header">
+    <div class="p-av">M</div>
+    <div>
+      <div class="p-name">Marcus Delgado</div>
+      <div class="p-meta">41 &middot; Landscaping Business Owner &middot; 12 yrs fantasy</div>
+    </div>
+  </div>
+  <div class="p-stats">
+    <div><span class="p-label">Knowledge</span><span class="p-val">none</span></div>
+    <div><span class="p-label">Strategy</span><span class="p-val">balanced</span></div>
+    <div><span class="p-label">Sources</span><span class="p-val">ESPN highlights, TNT broadcasts, friends' opinions at the bar</span></div>
+    <div><span class="p-label">Risk</span><div class="risk-bar"><div class="risk-fill" style="width:83%;background:#f85149"></div></div></div>
+    <div><span class="p-label">Posts seen</span><span class="p-val">19</span></div>
+  </div>
+  <div class="p-section">
+    <div class="p-section-title">Background</div>
+    <p>Grew up in Modesto, California in a loud household where his dad and uncles argued about games over beer and bet on players by feel and reputation. Never went to college — started doing yard work at 18 and eventually built his own crew. Business decisions have always come from pattern recognition and handshake instinct, not spreadsheets. When he took a chance on a young foreman who just looked like a leader and it paid off, it locked in his worldview: you watch someone long enough, you know what they are.</p>
+  </div>
+  <div class="p-section">
+    <div class="p-section-title">Philosophy</div>
+    <p><em>"I go by what I see. If a guy is out there looking like a problem every time I watch, I&#x27;m spending money on him. Stats can say whatever they want — I trust my eyes. I&#x27;ve played long enough to know you gotta swing big on the guys you believe in."</em></p>
+  </div>
+  <div class='p-section'><div class='p-section-title'>Going into the draft</div><div class="belief">Cameron Boozer is my guy and I don&#x27;t care what I have to pay. Duke 1-seed, consensus number one, I&#x27;ve watched this kid and he&#x27;s a problem every single time he touches the ball. That&#x27;s my anchor and I&#x27;m not flinching when bidding opens.</div><div class="belief">Dybantsa dropping 25-plus as a 6-seed — I&#x27;ve been hearing his name everywhere this week and if BYU gets on a run that guy is going to go absolutely crazy. But I&#x27;m not paying top dollar for a 6-seed. If the price gets silly I&#x27;m stepping back.</div><div class="belief">Stack the 1-seeds. More games means more points. I want guys who are still playing in week two and three. A 4-seed guy averaging 22 sounds nice until they catch a hot team in round one and he&#x27;s done scoring forever.</div></div>
+  <div class='p-section'><div class='p-section-title'>Top valuations</div><div class='vp-row'><span class="vp">Cameron Boozer <b>$72</b></span><span class="vp">Graham Ike <b>$54</b></span><span class="vp">Isaiah Evans <b>$52</b></span><span class="vp">AJ Dybantsa <b>$52</b></span><span class="vp">Thomas Haugh <b>$50</b></span></div></div>
+</div><div class="persona">
+  <div class="p-header">
+    <div class="p-av">M</div>
+    <div>
+      <div class="p-name">Marlene Kowalski</div>
+      <div class="p-meta">52 &middot; High School Athletic Director &middot; 17 yrs fantasy</div>
+    </div>
+  </div>
+  <div class="p-stats">
+    <div><span class="p-label">Knowledge</span><span class="p-val">none</span></div>
+    <div><span class="p-label">Strategy</span><span class="p-val">balanced</span></div>
+    <div><span class="p-label">Sources</span><span class="p-val">ESPN SportsCenter, sports talk radio, watching live games, coaching staff informal network, ESPN fantasy app, local sports newspaper</span></div>
+    <div><span class="p-label">Risk</span><div class="risk-bar"><div class="risk-fill" style="width:15%;background:#2ea043"></div></div></div>
+    <div><span class="p-label">Posts seen</span><span class="p-val">21</span></div>
+  </div>
+  <div class="p-section">
+    <div class="p-section-title">Background</div>
+    <p>Raised in a Polish-American household in Cleveland where Sunday afternoons meant folding chairs around the television and her father&#x27;s running commentary on every play. Her dad evaluated people by how they carried themselves — &#x27;watch his footwork, not the scoreboard.&#x27; Marlene played varsity volleyball and softball, trained her eye for talent early. Spent twenty-five years as an athletic director scouting student athletes and writing scholarship recommendations. A bad stock tip from a colleague in 2003 that wiped out her vacation fund soured her permanently on data-driven decisions. She trusts what she sees with her own eyes and reads body language the way other people read box scores.</p>
+  </div>
+  <div class="p-section">
+    <div class="p-section-title">Philosophy</div>
+    <p><em>"I watch the games. I can tell when a guy has the look in his eyes or when he is playing scared. Stats do not show you body language or whether a receiver actually wants the ball in traffic. I would rather draft someone I have seen compete under pressure than trust a spreadsheet some kid made."</em></p>
+  </div>
+  <div class='p-section'><div class='p-section-title'>Going into the draft</div><div class="belief">I watched six hours of Cameron Boozer tape and that kid has footwork I have not seen from a freshman in twenty-five years of watching athletes. My dad always said watch the footwork, not the scoreboard. Boozer is my anchor tonight and I do not care what the simulation says his price should be.</div><div class="belief">I am not blowing my whole budget chasing names in the first fifteen minutes. I watched everyone else do exactly that in 2021 and I walked out of that draft with a balanced roster and a trophy. Let the room get emotional. I will stay patient and pick up value while they empty their wallets.</div><div class="belief">You cannot stack players from the same team. One bad call, one hot-shooting underdog, and two of your six players go dark at the same time. I am spreading across at least four teams minimum. That is not negotiable.</div></div>
+  <div class='p-section'><div class='p-section-title'>Top valuations</div><div class='vp-row'><span class="vp">Cameron Boozer <b>$56</b></span><span class="vp">Thomas Haugh <b>$40</b></span><span class="vp">Darius Acuff Jr. <b>$36</b></span><span class="vp">Brayden Burries <b>$32</b></span><span class="vp">Graham Ike <b>$29</b></span></div></div>
+</div>
+
+<h2>What's next</h2>
+<ul>
+<li>More personas (50+) and more social sims (10+) for tighter confidence intervals</li>
+<li>Full OASIS integration — follower graphs, reposting, algorithmic feeds</li>
+<li>Real-time seed data — live odds, injury reports before each draft</li>
+<li>Post-draft calibration — compare predictions to actual prices, tune the model</li>
+<li>Fantasy football and basketball modules using the same persona + auction architecture</li>
+</ul>
+
+<div style="margin:3rem 0;padding:1rem;border-top:1px solid var(--bdr);color:var(--m);font-size:0.8em;text-align:center">
+DraftFish &middot; built on <a href="https://github.com/nikmcfly/MiroFish-Offline">MiroFish</a> + <a href="https://arxiv.org/abs/2304.03442">Stanford Generative Agents</a><br>
+76 tests &middot; 0 failures &middot; $0 inference cost (Claude Max)
+</div>
+
+</div>
+</body>
 </html>
